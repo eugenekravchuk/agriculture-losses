@@ -204,6 +204,14 @@ def generate_chart(raw_dates, raw_values, pred_dates, pred_values):
     return base64.b64encode(buffer.getvalue()).decode()
 
 
+@app.get("/")
+async def read_root():
+    return {"message": "Hello, world!"}
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
 @app.post("/predict")
 async def predict(data: TimeSeriesData):
     try:

@@ -1,20 +1,19 @@
-/* Reset */
+@import "tailwindcss";
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Body */
 body {
   background: #f8f9fa;
   color: #212529;
-  font-family: 'Inter', 'Roboto', 'Open Sans', sans-serif;
+  font-family: "Inter", "Roboto", "Open Sans", sans-serif;
   line-height: 1.6;
   min-height: 100vh;
 }
 
-/* Header */
 header {
   text-align: center;
   font-size: 2.5rem;
@@ -24,7 +23,6 @@ header {
   color: #212529;
 }
 
-/* Main Layout */
 .main {
   display: flex;
   gap: 2rem;
@@ -40,7 +38,7 @@ aside {
   padding: 2rem;
   border-radius: 12px;
   border: 1px solid #dee2e6;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 aside h2 {
@@ -62,7 +60,6 @@ aside input[type="range"] {
   margin-top: 1rem;
 }
 
-/* Buttons */
 .category-button {
   display: inline-block;
   width: 100%;
@@ -88,12 +85,10 @@ aside input[type="range"] {
   color: white;
 }
 
-/* Section */
 .section {
   flex: 1;
 }
 
-/* Section Title */
 .section h1 {
   font-size: 2rem;
   font-weight: 700;
@@ -107,13 +102,12 @@ aside input[type="range"] {
   gap: 2rem;
 }
 
-/* Graph Container */
 .graph-container {
   background: white;
   padding: 2rem;
   border-radius: 12px;
   border: 1px solid #dee2e6;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
 }
 
@@ -121,7 +115,6 @@ aside input[type="range"] {
   transform: translateY(-3px);
 }
 
-/* Data Boxes */
 .data-boxes {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -134,7 +127,7 @@ aside input[type="range"] {
   padding: 1.5rem;
   border-radius: 12px;
   border: 1px solid #dee2e6;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .full-width {
@@ -146,7 +139,6 @@ aside input[type="range"] {
   font-weight: 700;
 }
 
-/* Footer */
 footer {
   text-align: center;
   padding: 2rem;
