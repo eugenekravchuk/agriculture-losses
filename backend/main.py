@@ -52,13 +52,21 @@ class BuildingItem(BaseModel):
     area_m2: float
     price: float
 
+class PredictionData(BaseModel):
+    forecast_dates: List[str]
+    forecast_values: List[float]
+    dcf_values: List[float]
+    total_npv: float
+    chart: str  # base64 PNG chart
+
 class GeneratePdfRequest(BaseModel):
     technique: List[TechniqueItem]
     animals: List[AnimalItem]
     territories: List[TerritoryItem]
     buildings: List[BuildingItem]
+    prediction: PredictionData
 
-
+@app.post("/generate-pdf")
 @app.post("/generate-pdf")
 def generate_pdf(data: GeneratePdfRequest):
     class PDF(FPDF):
@@ -69,15 +77,13 @@ def generate_pdf(data: GeneratePdfRequest):
             self.cell(0, 10, f'Сторінка {self.page_no()}', align='C')
 
     try:
-        pdf = PDF(orientation='P', unit='mm', format='A4')
+        pdf = PDF()
         pdf.add_page()
 
-        # Підключення українського шрифту
         pdf.add_font('DejaVu', '', './fonts/DejaVuSans.ttf', uni=True)
-        pdf.set_font('DejaVu', '', 14)
+        pdf.set_font('DejaVu', '', 18)
 
         # Титулка
-        pdf.set_font('DejaVu', '', 18)
         pdf.cell(0, 10, "АКТ", ln=True, align="C")
         pdf.cell(0, 10, "Фіксації збитків аграрного господарства", ln=True, align="C")
         pdf.cell(0, 10, "Внаслідок збройної агресії російської федерації проти України", ln=True, align="C")
@@ -91,65 +97,84 @@ def generate_pdf(data: GeneratePdfRequest):
         pdf.multi_cell(0, 8, "Документ складено для фіксації матеріальних збитків, завданих агресією російської федерації проти України.")
         pdf.ln(10)
         pdf.cell(0, 10, "Слава Україні!", ln=True, align="C")
+        pdf.ln(20)
 
-        # Функція створення таблиць
-        def add_table(title, items, headers, calc_func):
+        # Таблиці
+        def add_table(title, items, headers, row_func):
             if not items:
                 return 0
-
             pdf.add_page()
-            pdf.set_font('DejaVu', '', 16)
+            pdf.set_font('DejaVu', '', 14)
             pdf.cell(0, 10, title, ln=True)
             pdf.ln(5)
-
             pdf.set_font('DejaVu', '', 10)
-            col_width = 48  # Розмір кожної колонки
+            col_width = pdf.w / len(headers) - 10
             for header in headers:
                 pdf.cell(col_width, 8, header, border=1, align='C')
             pdf.ln()
-
-            pdf.set_font('DejaVu', '', 10)
             total = 0
-            for idx, item in enumerate(items, 1):
-                values = calc_func(item)
-                for value in values:
+            for item in items:
+                row = row_func(item)
+                for value in row:
                     pdf.cell(col_width, 8, str(value), border=1, align='C')
                 pdf.ln()
-                total += values[-1]
+                total += row[-1]
             pdf.ln(5)
             pdf.set_font('DejaVu', '', 12)
             pdf.cell(0, 10, f"Проміжна сума: {round(total, 2)} грн", ln=True)
             return total
 
-        # Заповнюємо всі категорії
         grand_total = 0
-        grand_total += add_table("I. Техніка", data.technique, ["Назва", "К-сть", "Ціна за шт.", "Заг. сума"],
-            lambda item: [item.name, item.quantity, item.price, round(item.quantity * item.price, 2)])
-        grand_total += add_table("II. Тварини", data.animals, ["Назва", "К-сть", "Ціна за голову", "Заг. сума"],
-            lambda item: [item.name, item.quantity, item.price_per_unit, round(item.quantity * item.price_per_unit, 2)])
-        grand_total += add_table("III. Території", data.territories, ["Назва", "Площа (м²)", "Ціна за м²", "Заг. сума"],
-            lambda item: [item.name, item.area_m2, item.repair_price_per_m2, round(item.area_m2 * item.repair_price_per_m2, 2)])
-        grand_total += add_table("IV. Будівлі і Сховища", data.buildings, ["Назва", "Площа/Об'єм", "Вартість"],
-            lambda item: [item.name, item.area_m2, item.price])
+        grand_total += add_table(
+            "I. Техніка", data.technique,
+            ["Назва", "К-сть", "Ціна за шт.", "Заг. сума"],
+            lambda item: [item.name, item.quantity, item.price, round(item.quantity * item.price, 2)]
+        )
+        grand_total += add_table(
+            "II. Тварини", data.animals,
+            ["Назва", "К-сть", "Ціна за голову", "Заг. сума"],
+            lambda item: [item.name, item.quantity, item.price_per_unit, round(item.quantity * item.price_per_unit, 2)]
+        )
+        grand_total += add_table(
+            "III. Території", data.territories,
+            ["Назва", "Площа (м²)", "Ціна за м²", "Заг. сума"],
+            lambda item: [item.name, item.area_m2, item.repair_price_per_m2, round(item.area_m2 * item.repair_price_per_m2, 2)]
+        )
+        grand_total += add_table(
+            "IV. Будівлі і Сховища", data.buildings,
+            ["Назва", "Площа/Об'єм", "Вартість"],
+            lambda item: [item.name, item.area_m2, item.price]
+        )
 
-        # Фінальна сторінка
+        # Прогнозовані дані
+        pdf.add_page()
+        pdf.set_font('DejaVu', '', 16)
+        pdf.cell(0, 10, "Прогнозовані дані", ln=True, align="C")
+        pdf.ln(10)
+        pdf.set_font('DejaVu', '', 10)
+        for date, value, dcf in zip(data.prediction.forecast_dates, data.prediction.forecast_values, data.prediction.dcf_values):
+            pdf.cell(0, 8, f"{date}: прогнозована вартість = {round(value,2)} грн, дисконтована вартість = {round(dcf,2)} грн", ln=True)
+        pdf.ln(10)
+        pdf.set_font('DejaVu', '', 12)
+        pdf.cell(0, 10, f"Загальна дисконтована вартість (NPV): {round(data.prediction.total_npv, 2)} грн", ln=True)
+
+        # Підпис
         pdf.add_page()
         pdf.set_font('DejaVu', '', 18)
         pdf.cell(0, 10, f"СУМАРНІ ЗБИТКИ: {round(grand_total, 2)} грн", ln=True, align="C")
-        pdf.ln(30)
+        pdf.ln(20)
         pdf.set_font('DejaVu', '', 14)
         pdf.cell(0, 10, "Підпис заявника: ______________________", ln=True)
 
-        # Збереження PDF в пам'ять
         pdf_bytes = pdf.output(dest='S').encode('latin1')
         encoded = base64.b64encode(pdf_bytes).decode()
 
         return {"pdf_base64": encoded}
 
-    
     except Exception as e:
         print(f"Помилка генерації PDF: {e}")
-        raise HTTPException(status_code=500, detail="Не вдалося створити PDF документ")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 
 def predict_timeseries(dates, values):
