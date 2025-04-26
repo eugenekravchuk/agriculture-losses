@@ -1,6 +1,7 @@
 import HeroSection from "@/components/HeroSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import ImportanceSection from "@/components/ImportanceSection";
+import WhatToEnterSection from "@/components/WhatToEnterSection";
 
 export default function Main() {
   return (
@@ -9,6 +10,7 @@ export default function Main() {
         <HeroSection />
         <ImportanceSection />
         <HowItWorksSection />
+        <WhatToEnterSection />
       </div>
     </div>
   );
