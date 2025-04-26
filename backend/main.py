@@ -9,6 +9,9 @@ from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.arima.model import ARIMA
 import io
 import base64
+import os
+import uvicorn
+
 
 app = FastAPI(title="Agricultural Model API")
 app.add_middleware(
@@ -99,3 +102,7 @@ async def predict(data: TimeSeriesData):
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
