@@ -1,0 +1,97 @@
+Section ID,Section,HS2 ID,HS2,Trade Value,Share
+1,Animal Products,101,Live animals,32147178,0.07490365270968002
+1,Animal Products,102,Meat & edible offal,390786296,0.910540918997189
+1,Animal Products,103,"Fish, Crustaceans & Molluscs",17089003,0.03981776396879005
+1,Animal Products,104,"Edible products of animal origin, n.e.s.",376984689,0.8783828621511577
+1,Animal Products,105,"Animal originated products, n.e.s.",25304408,0.05895984365582724
+2,Vegetable Products,206,"Live trees, plants, bulbs, cut flowers, & ornamental foliage",2606283,0.006072698409021874
+2,Vegetable Products,207,"Edible vegetables, roots, & tubers",109747939,0.2557151831012709
+2,Vegetable Products,208,"Edible fruits, nuts & fruit peels",192668857,0.4489227997772931
+2,Vegetable Products,209,"Coffee, tea, mate & spices",10949198,0.025511879283510456
+2,Vegetable Products,210,Cereals,6897256121,16.070762949615634
+2,Vegetable Products,211,Products of the milling industry,119757903,0.27903862589591993
+2,Vegetable Products,212,"Oils seeds, oleaginous fruits, grains, straw & fodder",1653182855,3.8519534883129496
+2,Vegetable Products,213,"Natural gums, resins & other vegetable extracts",527758,0.0012296880910279376
+2,Vegetable Products,214,"Vegetable plaiting materials & products, n.e.s.",58192729,0.1355903763386175
+3,Animal and Vegetable Bi-Products,315,"Animal or vegetable fats, oils, & waxes",3427935929,7.987168339841536
+4,Foodstuffs,416,"Preparations of fish, crustacenas, & molluscs",18007626,0.04195817636091742
+4,Foodstuffs,417,Sugars & confectioneries,170844914,0.3980725183862531
+4,Foodstuffs,418,Cocoa & cocoa preparations,183567963,0.4277175106684447
+4,Foodstuffs,419,"Preparations of cereals, flour, starch or milk",274745631,0.6401635418177576
+4,Foodstuffs,420,"Preparations of vegetables, fruit, nuts or other plant parts",185732750,0.43276151339983315
+4,Foodstuffs,421,Miscellaneous edible preparations,119908476,0.2793894643956307
+4,Foodstuffs,422,"Beverages, spirits, & vinegar",164891642,0.3842012598149949
+4,Foodstuffs,423,Food residues & wastes; animal fodder,1055955059,2.4603991994683225
+4,Foodstuffs,424,Tobacco & substitutes,459388097,1.070384668808217
+5,Mineral Products,525,"Salt, sulphur, cement, lime, stone, & plaster",510446396,1.1893516616883697
+5,Mineral Products,526,"Ores, slag and ash",2335076151,5.440780309399486
+5,Mineral Products,527,"Mineral fuels, mineral oils and products of their distillation",960113281,2.237085686400698
+6,Chemical Products,628,Inorganic chemicals,1072282978,2.4984436204824405
+6,Chemical Products,629,Organic chemicals,96277360,0.224328428991336
+6,Chemical Products,630,Pharmaceutical products,170984407,0.3983975402350583
+6,Chemical Products,631,Fertilizers,705408884,1.643618673634711
+6,Chemical Products,632,"Paints, dyes, & varnishes",144142641,0.3358556176259106
+6,Chemical Products,633,Perfumery & cosmetics,83173400,0.19379590545345224
+6,Chemical Products,634,"Soap, cleaners, candles, dental, modelling pastes",80309618,0.1871232285433909
+6,Chemical Products,635,"Glues, starches, & albuminoid products",54972661,0.12808754498049474
+6,Chemical Products,636,"Explosives, matches, & fireworks",8299761,0.0193386310772705
+6,Chemical Products,637,Photo & movie goods,398004,0.0009273583327613854
+6,Chemical Products,638,Chemical products n.e.s.,91323194,0.21278511002473482
+7,Plastics and Rubbers,739,Plastics & articles thereof,370552185,0.863394982167738
+7,Plastics and Rubbers,740,Rubber & articles thereof,80463802,0.1874824807548724
+8,Animal Hides,841,Raw hides & skin (non-fur),60940989,0.14199388437269456
+8,Animal Hides,842,Leather articles,41782611,0.09735442979311143
+8,Animal Hides,843,"Furskins, articifial fur, & articles",16808946,0.03916522481692686
+9,Wood Products,944,"Wood, wood articles, & charcoal",1257686094,2.9304370791977443
+9,Wood Products,945,Cork & cork articles,221186,0.000515368388735188
+9,Wood Products,946,Straw & esparto manufactures,675579,0.0015741143684199254
+10,Paper Goods,1047,Wood pulp & paper scrap,678088,0.0015799603952359833
+10,Paper Goods,1048,Paper articles,619391057,1.4431951888594894
+10,Paper Goods,1049,"Books, newspapers, & other prints",83415095,0.19435906027661173
+11,Textiles,1150,Silk,32550,0.00007584223709154454
+11,Textiles,1151,Wool & animal hair,4776674,0.011129758587312332
+11,Textiles,1152,Cotton,6337606,0.014766765494463756
+11,Textiles,1153,"Vegetable textile fibers, paper yarn & fabrics",1919112,0.00447157441810225
+11,Textiles,1154,Man-made filaments,5845716,0.013620650655663145
+11,Textiles,1155,Man-made staple fibres,13412070,0.03125042681500436
+11,Textiles,1156,"Wadding, felt, nonwovens, twin, ropes, & articles thereof",53753599,0.12524710291495583
+11,Textiles,1157,Carpets & textile floor covers,7050735,0.016428372213199732
+11,Textiles,1158,Special woven fabrics and tapestries,3876960,0.009033404593377406
+11,Textiles,1159,"Coated, covered, & laminated fabrics for industrial use",13088280,0.030495988782811696
+11,Textiles,1160,Knitted fabrics,9860805,0.022975898946958152
+11,Textiles,1161,Knitted clothing accesories,123726872,0.2882864135428321
+11,Textiles,1162,Non-knitted clothing accesories,408726485,0.9523419656210022
+11,Textiles,1163,Used clothes & textile articles,107573736,0.2506492408766581
+12,Footwear and Headwear,1264,Footwear,183631762,0.42786616378316683
+12,Footwear and Headwear,1265,Headgear,2805644,0.006537214053532086
+12,Footwear and Headwear,1266,"Umbrellas, walking sticks, & whips",3459376,0.008060424417228849
+12,Footwear and Headwear,1267,"Feather articles, feathers, artificial flowers, & articles of human hair",2734707,0.006371929237170706
+13,Stone And Glass,1368,"Stone, plaster, cement, asbestos, mica.",82545923,0.1923338698342974
+13,Stone And Glass,1369,Ceramic products,142176341,0.3312740940992407
+13,Stone And Glass,1370,Glass & glassware,119958705,0.2795064991030614
+14,Precious Metals,1471,"Precious stones, metals, & pearls",133499430,0.3110566949814456
+15,Metals,1572,Iron & steel,9219537806,21.481731863505697
+15,Metals,1573,Iron/Steel Articles,997264227,2.323648231860212
+15,Metals,1574,Copper articles,209910088,0.4890952584332713
+15,Metals,1575,Nickel articles,13886839,0.032356649336101606
+15,Metals,1576,Aluminum articles,116389529,0.2711902381994224
+15,Metals,1578,Lead articles,29483077,0.06869623705137523
+15,Metals,1579,Zinc articles,130588,0.00030427299715239995
+15,Metals,1580,Tin articles,98978,0.00023062098134706284
+15,Metals,1581,Cermet articles,100515819,0.23420413444082266
+15,Metals,1582,Tools & cutlery,20299898,0.04729922202919112
+15,Metals,1583,Miscellaneous metal products,104892781,0.24440255501669614
+16,Machines,1684,"Machinery, mechanical appliances, & parts",2113042487,4.92343684434903
+16,Machines,1685,Electrical machinery and electronics,2168793109,5.053337056076375
+17,Transportation,1786,Railway and trams,227139231,0.5292395517755178
+17,Transportation,1787,"Cars, tractors, trucks & parts thereof.",234808012,0.5471079851643084
+17,Transportation,1788,Aircraft and Spacecraft,217579704,0.5069656373909703
+17,Transportation,1789,"Ships, boats, & floating structures",196956904,0.45891404638969513
+18,Instruments,1890,"Optical, photo, & film equipment; medical instruments",171539533,0.39969099638583194
+18,Instruments,1891,"Clocks, watches, & parts",2560785,0.005966687038724144
+18,Instruments,1892,Musical instruments,1346439,0.0031372333599785605
+19,Weapons,1993,Weapons,12694309,0.029578027431377194
+20,Miscellaneous,2094,"Furniture, bedding, lamps, & prefab buildings",415679401,0.9685424173491004
+20,Miscellaneous,2095,"Toys, games, & sports",113566338,0.2646121392385402
+20,Miscellaneous,2096,Misc. manufactures,3139870,0.007315968202046942
+21,Arts and Antiques,2197,Art & antiques,1985310,0.0046258172571494414
