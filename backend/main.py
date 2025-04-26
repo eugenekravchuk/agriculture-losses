@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
@@ -204,12 +204,12 @@ def generate_chart(raw_dates, raw_values, pred_dates, pred_values):
     return base64.b64encode(buffer.getvalue()).decode()
 
 
-@app.get("/")
-async def read_root():
+@app.api_route("/", methods=["GET", "HEAD"])
+async def read_root(request: Request):
     return {"message": "Hello, world!"}
 
-@app.get("/health")
-async def health():
+@app.api_route("/health", methods=["GET", "HEAD"])
+async def health(request: Request):
     return {"status": "ok"}
 
 @app.post("/predict")
