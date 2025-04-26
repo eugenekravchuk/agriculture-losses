@@ -130,6 +130,12 @@ export default function DcfForm({ onSave, onClose }) {
   const handleSave = async () => {
     setLoading(true);
     try {
+      console.log('Sending data:', {
+        dates: rows.map(row => row.date),
+        values: rows.map(row => parseFloat(row.cashFlow)),
+        discount_rate: 0.1
+      });
+
       const response = await fetch(`${API_URL}/predict`, {
         method: "POST",
         headers: {
@@ -141,10 +147,14 @@ export default function DcfForm({ onSave, onClose }) {
           discount_rate: 0.1
         })
       });
+
+      console.log('Response status:', response.status);
       const result = await response.json();
+      console.log('API response:', result);
+
       onSave(result);
     } catch (e) {
-      console.error(e);
+      console.error('Error details:', e);
       alert("Помилка при збереженні");
     } finally {
       setLoading(false);
