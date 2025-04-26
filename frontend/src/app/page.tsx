@@ -1,13 +1,25 @@
 "use client";
-import React from "react";
-import { useState } from "react";
-
-import FarmLossForm from "./farm-loss-form/FarmLossForm";
-import FormSection from "./dcf-form/dcf-form";
-import ChartSection from "./dcf-page/dcf-page";
-import Main from "./main/page";
+import React, { useState } from "react";
+import FarmLossForm from "./farm-loss-form/page";
+import DcfForm from "./dcf-form/page";
+import DcfPage from "./dcf-page/page";
 
 export default function Home() {
-  const [data, setData] = useState([]);
-  return <Main />;
+  const [showDcfForm, setShowDcfForm] = useState(false);
+  const [dcfData, setDcfData] = useState(null);
+
+  const handleDcfSave = (result) => {
+    setDcfData(result);
+    setShowDcfForm(false);
+  };
+
+  return (
+    <main>
+      <FarmLossForm />
+      <DcfPage data={dcfData} onFormOpen={() => setShowDcfForm(true)} />
+      {showDcfForm && (
+        <DcfForm onSave={handleDcfSave} onClose={() => setShowDcfForm(false)} />
+      )}
+    </main>
+  );
 }

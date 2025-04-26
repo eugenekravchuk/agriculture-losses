@@ -6,3 +6,4 @@ matplotlib
 statsmodels
 python-multipart
 pydantic
+fpdf
