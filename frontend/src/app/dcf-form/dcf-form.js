@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import styles from "./dcf-form.module.css";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export default function DcfForm({ onSave, onClose }) {
-  // Validate props
   if (typeof onClose !== 'function') {
     throw new Error('DcfForm: onClose prop must be a function');
   }
@@ -127,19 +128,20 @@ export default function DcfForm({ onSave, onClose }) {
   };
 
   const handleSave = async () => {
-    if (!rows.every(isValidRow)) {
-      alert("Будь ласка, заповніть всі поля коректно");
-      return;
-    }
-    
     setLoading(true);
     try {
-      const res = await fetch("https://YOUR-HOSTED-API/discounted-cashflow", {
+      const response = await fetch(`${API_URL}/predict`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: rows }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          dates: rows.map(row => row.date),
+          values: rows.map(row => parseFloat(row.cashFlow)),
+          discount_rate: 0.1
+        })
       });
-      const result = await res.json();
+      const result = await response.json();
       onSave(result);
     } catch (e) {
       console.error(e);
