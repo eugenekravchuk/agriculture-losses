@@ -3,8 +3,8 @@ import React from "react";
 import { useState } from "react";
 
 import FarmLossForm from "./farm-loss-form/FarmLossForm";
-import FormSection from "./form-section/form-section";
-import ChartSection from "./chart-section/chart-section";
+import FormSection from "./dcf-form/dcf-form";
+import ChartSection from "./dcf-page/dcf-page";
 
 export default function Home() {
   const [data, setData] = useState([]);
@@ -12,7 +12,6 @@ export default function Home() {
     <main>
       <FarmLossForm />
       <ChartSection data={data} />
-      <FormSection  onSave={setData}/>
     </main>
   );
 }
