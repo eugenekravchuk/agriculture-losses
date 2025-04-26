@@ -1,14 +1,12 @@
 @import "tailwindcss";
 
-/* Reset */
-* {
+/* * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
+} */
 
-/* Body */
-body {
+/* body {
   background: #f8f9fa;
   color: #212529;
   font-family: "Inter", "Roboto", "Open Sans", sans-serif;
@@ -16,7 +14,6 @@ body {
   min-height: 100vh;
 }
 
-/* Header */
 header {
   text-align: center;
   font-size: 2.5rem;
@@ -26,7 +23,6 @@ header {
   color: #212529;
 }
 
-/* Main Layout */
 .main {
   display: flex;
   gap: 2rem;
@@ -35,7 +31,6 @@ header {
   margin: 0 auto;
 }
 
-/* Sidebar */
 aside {
   width: 25%;
   background: white;
@@ -64,7 +59,6 @@ aside input[type="range"] {
   margin-top: 1rem;
 }
 
-/* Buttons */
 .category-button {
   display: inline-block;
   width: 100%;
@@ -90,26 +84,22 @@ aside input[type="range"] {
   color: white;
 }
 
-/* Section */
 .section {
   flex: 1;
 }
 
-/* Section Title */
 .section h1 {
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 2rem;
 }
 
-/* Graphs */
 .graphs {
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
-/* Graph Container */
 .graph-container {
   background: white;
   padding: 2rem;
@@ -123,7 +113,6 @@ aside input[type="range"] {
   transform: translateY(-3px);
 }
 
-/* Data Boxes */
 .data-boxes {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -148,10 +137,9 @@ aside input[type="range"] {
   font-weight: 700;
 }
 
-/* Footer */
 footer {
   text-align: center;
   padding: 2rem;
   font-size: 0.9rem;
   color: #6c757d;
-}
+} */
