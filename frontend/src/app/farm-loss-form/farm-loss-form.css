@@ -1,0 +1,68 @@
+.farm-loss-form-wrapper {
+    background: linear-gradient(to bottom, #ffffff 40%, #cfe2ff 100%);
+    padding: 80px 20px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .farm-loss-form {
+    max-width: 1100px;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .farm-loss-form h2 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 50px;
+    text-align: left;
+  }
+  
+  .steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 60px;
+  }
+  
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .step p {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    text-align: left;
+  }
+  
+  .step span {
+    font-weight: bold;
+    margin-right: 5px;
+  }
+  
+  .arrow {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .submit-button {
+    background-color: #3b82f6;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 14px 32px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .submit-button:hover {
+    background-color: #2563eb;
+  }
+  
