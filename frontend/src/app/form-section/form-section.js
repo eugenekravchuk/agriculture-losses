@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import styles from "./FormSection.module.css";
+import styles from "./form-section.module.css";
 
 export default function FormSection({ onSave }) {
   const [rows, setRows] = useState([

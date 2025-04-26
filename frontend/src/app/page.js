@@ -1,6 +1,9 @@
+"use client";
 import React from "react";
+import { useState } from "react";
+
 import FarmLossForm from "./farm-loss-form/FarmLossForm";
-import FormSection from "./chart-section/form-section";
+import FormSection from "./form-section/form-section";
 import ChartSection from "./chart-section/chart-section";
 
 export default function Home() {
@@ -8,8 +11,8 @@ export default function Home() {
   return (
     <main>
       <FarmLossForm />
-      <FormSection  onSave={setData}/>
       <ChartSection data={data} />
+      <FormSection  onSave={setData}/>
     </main>
   );
 }

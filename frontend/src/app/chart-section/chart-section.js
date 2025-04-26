@@ -12,7 +12,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import styles from "./ChartSection.module.css";
+import styles from "./chart-section.module.css";
 
 ChartJS.register(
   CategoryScale,
