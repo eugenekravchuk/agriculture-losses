@@ -1,53 +1,68 @@
 .farm-loss-form-wrapper {
-    background: linear-gradient(to bottom, #ffffff 40%, #cfe2ff 100%);
+    /* замість градієнта буде фото */
+    background: url('./background.png') no-repeat center/cover;
     padding: 80px 20px;
     display: flex;
     justify-content: center;
   }
   
   .farm-loss-form {
-    max-width: 1100px;
+    max-width: 1200px;
     width: 100%;
-    text-align: center;
   }
   
   .farm-loss-form h2 {
-    font-size: 32px;
-    font-weight: 700;
+    font-size: 48px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
     margin-bottom: 50px;
     text-align: left;
+    padding-right: 30%;
   }
   
-  .steps {
-    display: flex;
-    justify-content: space-between;
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px 40px;
+    margin-bottom: 40px;
     align-items: center;
-    flex-wrap: wrap;
-    margin-bottom: 60px;
+  }
+  
+  .second-row {
+    margin-left: 30%; /* Зсув другого рядка вправо */
   }
   
   .step {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  
-  .step p {
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0;
+    justify-content: center;
+    align-items: left;
     text-align: left;
   }
   
+  .step p {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+  }
+  
   .step span {
-    font-weight: bold;
+    font-weight: 600;
     margin-right: 5px;
   }
   
+  .arrow-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
   .arrow {
-    width: 32px;
-    height: 32px;
+    width: 60px;
+    height: 60px;
+  }
+  
+  .empty {
+    /* Порожня клітинка для вирівнювання */
   }
   
   .submit-button {
