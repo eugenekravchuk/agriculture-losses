@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 /* Reset */
 * {
   margin: 0;
@@ -9,7 +11,7 @@
 body {
   background: #f8f9fa;
   color: #212529;
-  font-family: 'Inter', 'Roboto', 'Open Sans', sans-serif;
+  font-family: "Inter", "Roboto", "Open Sans", sans-serif;
   line-height: 1.6;
   min-height: 100vh;
 }
@@ -40,7 +42,7 @@ aside {
   padding: 2rem;
   border-radius: 12px;
   border: 1px solid #dee2e6;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 aside h2 {
@@ -113,7 +115,7 @@ aside input[type="range"] {
   padding: 2rem;
   border-radius: 12px;
   border: 1px solid #dee2e6;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
 }
 
@@ -134,7 +136,7 @@ aside input[type="range"] {
   padding: 1.5rem;
   border-radius: 12px;
   border: 1px solid #dee2e6;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .full-width {
