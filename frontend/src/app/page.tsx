@@ -16,15 +16,9 @@ export default function Home() {
   return (
     <main>
       <FarmLossForm />
-      <DcfPage
-        data={dcfData}
-        onFormOpen={() => setShowDcfForm(true)}
-      />
+      <DcfPage data={dcfData} onFormOpen={() => setShowDcfForm(true)} />
       {showDcfForm && (
-        <DcfForm
-          onSave={handleDcfSave}
-          onClose={() => setShowDcfForm(false)}
-        />
+        <DcfForm onSave={handleDcfSave} onClose={() => setShowDcfForm(false)} />
       )}
     </main>
   );

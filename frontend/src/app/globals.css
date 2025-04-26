@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
-* {
+/* * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
+} */
 
-body {
+/* body {
   background: #f8f9fa;
   color: #212529;
   font-family: "Inter", "Roboto", "Open Sans", sans-serif;
@@ -31,7 +31,6 @@ header {
   margin: 0 auto;
 }
 
-/* Sidebar */
 aside {
   width: 25%;
   background: white;
@@ -95,7 +94,6 @@ aside input[type="range"] {
   margin-bottom: 2rem;
 }
 
-/* Graphs */
 .graphs {
   display: flex;
   flex-direction: column;
@@ -144,4 +142,4 @@ footer {
   padding: 2rem;
   font-size: 0.9rem;
   color: #6c757d;
-}
+} */
