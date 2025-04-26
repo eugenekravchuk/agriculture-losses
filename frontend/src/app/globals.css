@@ -1,0 +1,155 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Body */
+body {
+  background: #f8f9fa;
+  color: #212529;
+  font-family: 'Inter', 'Roboto', 'Open Sans', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* Header */
+header {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  padding-top: 2rem;
+  color: #212529;
+}
+
+/* Main Layout */
+.main {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Sidebar */
+aside {
+  width: 25%;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+aside h2 {
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+}
+
+aside h3 {
+  font-size: 1.2rem;
+  margin: 1rem 0 0.5rem;
+}
+
+aside label {
+  font-weight: 600;
+}
+
+aside input[type="range"] {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+/* Buttons */
+.category-button {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 30px;
+  border: none;
+  background-color: #f1f3f5;
+  color: #212529;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.category-button:hover {
+  background-color: #ffe066;
+}
+
+.category-button.active {
+  background-color: #ffc107;
+  color: white;
+}
+
+/* Section */
+.section {
+  flex: 1;
+}
+
+/* Section Title */
+.section h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+}
+
+/* Graphs */
+.graphs {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Graph Container */
+.graph-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.graph-container:hover {
+  transform: translateY(-3px);
+}
+
+/* Data Boxes */
+.data-boxes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.data-box {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.full-width {
+  grid-column: span 2;
+}
+
+.data-box strong {
+  color: #212529;
+  font-weight: 700;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
