@@ -1,5 +1,8 @@
 fastapi
 uvicorn
-pydantic
+pandas
 numpy
 matplotlib
+statsmodels
+python-multipart
+pydantic
