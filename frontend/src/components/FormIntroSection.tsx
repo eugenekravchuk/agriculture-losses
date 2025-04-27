@@ -8,13 +8,13 @@ export default function FormIntroSection() {
 
   function handleDcfSave(predictionData) {
     if (!predictionData) {
-      console.error('No prediction data received');
+      console.error("No prediction data received");
       return;
     }
-    
-    localStorage.setItem('predictionData', JSON.stringify(predictionData));
+
+    localStorage.setItem("predictionData", JSON.stringify(predictionData));
     setShowDcfForm(false);
-    router.push('/loss-form');
+    router.push("/loss-form");
   }
 
   function handleCloseDcfForm() {
@@ -24,7 +24,7 @@ export default function FormIntroSection() {
   return (
     <section
       id="form-intro-section"
-      className="min-h-screen flex items-center justify-center px-6"
+      className="flex items-center justify-center px-6 py-[100px]"
       style={{
         backgroundImage: "linear-gradient(to right, white 40%, #3b82f6 100%)",
         backgroundSize: "cover",
@@ -71,7 +71,7 @@ export default function FormIntroSection() {
             </div>
           </div>
 
-          <button 
+          <button
             onClick={() => setShowDcfForm(true)}
             className="mt-12 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-lg shadow-md"
           >
@@ -81,10 +81,7 @@ export default function FormIntroSection() {
       </div>
 
       {showDcfForm ? (
-        <DcfForm
-          onSave={handleDcfSave}
-          onClose={handleCloseDcfForm}
-        />
+        <DcfForm onSave={handleDcfSave} onClose={handleCloseDcfForm} />
       ) : null}
     </section>
   );

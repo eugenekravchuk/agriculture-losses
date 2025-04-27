@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import TableSection from "./TableSection";
 import { Line } from "react-chartjs-2";
 import {
@@ -195,10 +195,10 @@ export default function LossForm() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            technique: technique,
-            animals: animals,
-            territories: territories,
-            buildings: buildings,
+            technique,
+            animals,
+            territories,
+            buildings,
             prediction: chartData
               ? {
                   forecast_dates: chartData.forecast_dates,
@@ -224,12 +224,10 @@ export default function LossForm() {
 
       const result = await response.json();
       const base64PDF = result.pdf_base64;
-
       const pdfBlob = new Blob(
         [Uint8Array.from(atob(base64PDF), (c) => c.charCodeAt(0))],
         { type: "application/pdf" }
       );
-
       const pdfBlobUrl = URL.createObjectURL(pdfBlob);
       setPdfUrl(pdfBlobUrl);
 
@@ -238,6 +236,11 @@ export default function LossForm() {
 
       setIsLoading(false);
       setPdfGenerated(true);
+      setTechnique([]);
+      setAnimals([]);
+      setTerritories([]);
+      setBuildings([]);
+      setIsLoading(false);
     } catch (error) {
       console.error("Помилка при генерації PDF:", error);
       setIsLoading(false);
@@ -254,64 +257,76 @@ export default function LossForm() {
 
         {renderChart()}
 
-        <div className="space-y-10">
-          <TableSection
-            title="Техніка"
-            columns={["Назва/тип", "Кількість", "Вартість"]}
-            items={technique}
-            setItems={setTechnique}
-          />
-          <TableSection
-            title="Тварини"
-            columns={["Назва/тип", "Кількість", "Ціна за голову"]}
-            items={animals}
-            setItems={setAnimals}
-          />
-          <TableSection
-            title="Територія"
-            columns={["Назва/тип", "Площа (м²)", "Ціна за відновлення м²"]}
-            items={territories}
-            setItems={setTerritories}
-          />
-          <TableSection
-            title="Будівлі і сховища"
-            columns={["Назва/тип", "Площа/об'єм (м²)", "Вартість об'єкта"]}
-            items={buildings}
-            setItems={setBuildings}
-          />
-        </div>
+          <div className="space-y-10">
+            <TableSection
+              title="Техніка"
+              columns={["Назва/тип", "Кількість", "Вартість (грн)"]}
+              items={technique}
+              setItems={setTechnique}
+            />
+            <TableSection
+              title="Тварини"
+              columns={["Назва/тип", "Кількість", "Ціна за голову (грн)"]}
+              items={animals}
+              setItems={setAnimals}
+            />
+            <TableSection
+              title="Територія"
+              columns={[
+                "Назва/тип",
+                "Площа (м²)",
+                "Ціна за відновлення м² (грн)",
+              ]}
+              items={territories}
+              setItems={setTerritories}
+            />
+            <TableSection
+              title="Будівлі і сховища"
+              columns={[
+                "Назва/тип",
+                "Площа/об'єм (м²)",
+                "Вартість об'єкта (грн)",
+              ]}
+              items={buildings}
+              setItems={setBuildings}
+            />
+          </div>
 
-        <div className="mt-12 flex flex-col items-center">
-          {isLoading ? (
-            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-600"></div>
-          ) : (
-            <button
-              onClick={handleGeneratePDF}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105"
-            >
-              Згенерувати PDF
-            </button>
+          <div className="mt-12 flex flex-col items-center w-full">
+            {isLoading ? (
+              <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-600"></div>
+            ) : (
+              <button
+                onClick={handleGeneratePDF}
+                className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-2xl hover:scale-110 transform transition-all duration-300 active:scale-95"
+              >
+                Згенерувати PDF
+              </button>
+            )}
+          </div>
+
+          {pdfGenerated && pdfUrl && (
+            <div className="mt-8 flex flex-col items-center space-y-6">
+              <div className="bg-green-100 text-green-800 font-semibold py-2 px-6 rounded-full shadow-md">
+                ✅ PDF успішно створено!
+              </div>
+              <iframe
+                src={pdfPreview ?? ""}
+                title="PDF Preview"
+                width="100%"
+                height="400px"
+                className="rounded-lg border shadow-md"
+              />
+              <a
+                href={pdfUrl}
+                download="loss-form.pdf"
+                className="w-full sm:w-auto bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition transform hover:scale-105"
+              >
+                Завантажити документ
+              </a>
+            </div>
           )}
         </div>
-
-        {pdfGenerated && pdfUrl && (
-          <div className="mt-8 flex flex-col items-center space-y-4">
-            <iframe
-              src={pdfPreview ?? ""}
-              title="PDF Preview"
-              width="100%"
-              height="400px"
-              className="rounded-lg border shadow-md"
-            />
-            <a
-              href={pdfUrl}
-              download="loss-form.pdf"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-full shadow-md transition hover:scale-105"
-            >
-              Завантажити документ
-            </a>
-          </div>
-        )}
       </div>
     </div>
   );
