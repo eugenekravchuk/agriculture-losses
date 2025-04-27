@@ -1,11 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function HeroSection() {
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [isOpen]);
 
   return (
     <section
@@ -35,60 +43,62 @@ export default function HeroSection() {
           </a>
         </div>
 
-        {/* Burger Icon (Mobile) */}
+        {/* Burger Button (Mobile) */}
         <button
-          className="md:hidden ml-auto relative w-10 h-10 z-50"
-          onClick={() => setIsOpen(true)}
+          className="md:hidden ml-auto relative w-10 h-10 z-50 flex flex-col justify-between items-center"
+          onClick={() => setIsOpen(!isOpen)}
         >
-          {/* Burger lines */}
-          <div className="absolute top-2 left-0 w-10 h-1 bg-black transition-all duration-300"></div>
-          <div className="absolute top-4 left-0 w-10 h-1 bg-black transition-all duration-300"></div>
-          <div className="absolute top-6 left-0 w-10 h-1 bg-black transition-all duration-300"></div>
+          {/* 3 lines animated */}
+          <span
+            className={`block h-1 w-10 bg-black transform transition-all duration-300 ease-in-out ${
+              isOpen ? "rotate-45 translate-y-3" : ""
+            }`}
+          />
+          <span
+            className={`block h-1 w-10 bg-black transition-all duration-300 ease-in-out ${
+              isOpen ? "opacity-0" : ""
+            }`}
+          />
+          <span
+            className={`block h-1 w-10 bg-black transform transition-all duration-300 ease-in-out ${
+              isOpen ? "-rotate-45 -translate-y-6" : ""
+            }`}
+          />
         </button>
       </nav>
 
       {/* Sliding Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-[80%] bg-white shadow-lg z-40 transform transition-transform duration-300 ${
+        className={`fixed top-0 right-0 h-full w-[100%] bg-white z-40 transform transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        } border-t border-b border-black`}
       >
-        {/* Close button */}
-        <div className="flex justify-end p-4">
-          <button
-            onClick={() => setIsOpen(false)}
-            className="text-3xl font-bold"
-          >
-            &times;
-          </button>
-        </div>
-
         {/* Menu Items */}
-        <div className="flex flex-col gap-4 p-6">
+        <div className="flex flex-col gap-4 p-6 mt-[150px]">
           <a
             href="#importance"
-            className="w-full bg-black text-white py-4 text-center text-lg font-semibold rounded-lg"
+            className="w-full text-black py-4 text-center text-lg font-semibold border-t border-b border-black"
             onClick={() => setIsOpen(false)}
           >
             Важливість
           </a>
           <a
             href="#how-it-works"
-            className="w-full bg-black text-white py-4 text-center text-lg font-semibold rounded-lg"
+            className="w-full text-black py-4 text-center text-lg font-semibold border-t border-b border-black"
             onClick={() => setIsOpen(false)}
           >
             Як працює
           </a>
           <a
             href="#what-to-enter"
-            className="w-full bg-black text-white py-4 text-center text-lg font-semibold rounded-lg"
+            className="w-full text-black py-4 text-center text-lg font-semibold border-t border-b border-black"
             onClick={() => setIsOpen(false)}
           >
             Що вказувати
           </a>
           <a
             href="#for-whom"
-            className="w-full bg-black text-white py-4 text-center text-lg font-semibold rounded-lg"
+            className="w-full text-black py-4 text-center text-lg font-semibold border-t border-b border-black"
             onClick={() => setIsOpen(false)}
           >
             Для кого

@@ -1,11 +1,28 @@
-'use client';
+"use client";
 
 import React, { useState, useEffect } from "react";
 import TableSection from "./TableSection";
 import { Line } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface PredictionData {
   dates: string[];
@@ -16,7 +33,11 @@ interface PredictionData {
   total_npv: number;
 }
 
-export default function LossForm({ chartData }: { chartData: PredictionData | null }) {
+export default function LossForm({
+  chartData,
+}: {
+  chartData: PredictionData | null;
+}) {
   const [pdfGenerated, setPdfGenerated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -25,8 +46,8 @@ export default function LossForm({ chartData }: { chartData: PredictionData | nu
   const chartOptions = {
     responsive: true,
     plugins: {
-      legend: { position: 'top' as const },
-      title: { display: true, text: 'Прогноз грошових потоків' },
+      legend: { position: "top" as const },
+      title: { display: true, text: "Прогноз грошових потоків" },
     },
   };
 
@@ -37,16 +58,18 @@ export default function LossForm({ chartData }: { chartData: PredictionData | nu
       labels: [...chartData.dates, ...chartData.forecast_dates],
       datasets: [
         {
-          label: 'Фактичні дані',
+          label: "Фактичні дані",
           data: chartData.values,
-          borderColor: 'rgb(75, 192, 192)',
-          backgroundColor: 'rgba(75, 192, 192, 0.5)',
+          borderColor: "rgb(75, 192, 192)",
+          backgroundColor: "rgba(75, 192, 192, 0.5)",
         },
         {
-          label: 'Прогнозовані дані',
-          data: Array(chartData.dates.length).fill(null).concat(chartData.forecast_values),
-          borderColor: 'rgb(255, 99, 132)',
-          backgroundColor: 'rgba(255, 99, 132, 0.5)',
+          label: "Прогнозовані дані",
+          data: Array(chartData.dates.length)
+            .fill(null)
+            .concat(chartData.forecast_values),
+          borderColor: "rgb(255, 99, 132)",
+          backgroundColor: "rgba(255, 99, 132, 0.5)",
         },
       ],
     };
@@ -63,28 +86,28 @@ export default function LossForm({ chartData }: { chartData: PredictionData | nu
       setIsLoading(true);
       setPdfGenerated(false);
 
-      const response = await fetch('https://your-render-domain.onrender.com/generate-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/generate-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           technique: [],
           animals: [],
           territories: [],
           buildings: [],
-          prediction: chartData
+          prediction: chartData,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate PDF');
+        throw new Error("Failed to generate PDF");
       }
 
       const result = await response.json();
       const base64PDF = result.pdf_base64;
 
       const pdfBlob = new Blob(
-        [Uint8Array.from(atob(base64PDF), c => c.charCodeAt(0))],
-        { type: 'application/pdf' }
+        [Uint8Array.from(atob(base64PDF), (c) => c.charCodeAt(0))],
+        { type: "application/pdf" }
       );
 
       const pdfBlobUrl = URL.createObjectURL(pdfBlob);
@@ -96,7 +119,6 @@ export default function LossForm({ chartData }: { chartData: PredictionData | nu
 
       setIsLoading(false);
       setPdfGenerated(true);
-
     } catch (error) {
       console.error("Помилка при генерації PDF:", error);
       setIsLoading(false);
@@ -108,16 +130,29 @@ export default function LossForm({ chartData }: { chartData: PredictionData | nu
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-pink-100 to-purple-200 py-12 px-6 flex flex-col items-center">
       <div className="max-w-4xl w-full bg-white shadow-lg rounded-3xl p-10">
         <h1 className="text-4xl md:text-5xl font-bold text-center text-gray-800 mb-10 leading-snug">
-          Форма фіксації втрат <span className="text-blue-600">фермерського господарства</span>
+          Форма фіксації втрат{" "}
+          <span className="text-blue-600">фермерського господарства</span>
         </h1>
 
         {chartData && renderChart()}
 
         <div className="space-y-10">
-          <TableSection title="Техніка" columns={["Назва/тип", "Кількість", "Вартість"]} />
-          <TableSection title="Тварини" columns={["Назва/тип", "Кількість", "Ціна за голову"]} />
-          <TableSection title="Територія" columns={["Назва/тип", "Площа (м²)", "Ціна за відновлення м²"]} />
-          <TableSection title="Будівлі і сховища" columns={["Назва/тип", "Площа/об'єм (м²)", "Вартість об'єкта"]} />
+          <TableSection
+            title="Техніка"
+            columns={["Назва/тип", "Кількість", "Вартість"]}
+          />
+          <TableSection
+            title="Тварини"
+            columns={["Назва/тип", "Кількість", "Ціна за голову"]}
+          />
+          <TableSection
+            title="Територія"
+            columns={["Назва/тип", "Площа (м²)", "Ціна за відновлення м²"]}
+          />
+          <TableSection
+            title="Будівлі і сховища"
+            columns={["Назва/тип", "Площа/об'єм (м²)", "Вартість об'єкта"]}
+          />
         </div>
 
         <div className="mt-12 flex flex-col items-center">
