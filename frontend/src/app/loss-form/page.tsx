@@ -65,6 +65,7 @@ export default function LossForm({ chartData }: { chartData: PredictionData | nu
 
       const response = await fetch('https://your-render-domain.onrender.com/generate-pdf', {
         method: 'POST',
+        mode: 'cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           technique: [],

@@ -19,20 +19,25 @@ export default function TableSection({ title, columns }: TableSectionProps) {
   };
 
   const validateNewRow = () => {
-    let hasError = false;
+    for (let i = 0; i < columns.length; i++) {
+      const value = newRow[i].trim();
+      const colName = columns[i].toLowerCase();
 
-    newRow.forEach((cell, colIdx) => {
-      const isNumericColumn = columns[colIdx].toLowerCase().includes('кількість') ||
-                               columns[colIdx].toLowerCase().includes('площа') ||
-                               columns[colIdx].toLowerCase().includes('ціна') ||
-                               columns[colIdx].toLowerCase().includes('вартість');
-
-      if (isNumericColumn && cell && isNaN(Number(cell))) {
-        hasError = true;
+      if (!value) {
+        return "Всі поля повинні бути заповнені.";
       }
-    });
 
-    return hasError ? "Помилка: введено неправильний формат числа." : "";
+      const isNumericColumn =
+        colName.includes('кількість') ||
+        colName.includes('площа') ||
+        colName.includes('ціна') ||
+        colName.includes('вартість');
+
+      if (isNumericColumn && isNaN(Number(value))) {
+        return `Поле "${columns[i]}" повинно бути числом.`;
+      }
+    }
+    return "";
   };
 
   const handleAddRow = () => {
@@ -42,11 +47,7 @@ export default function TableSection({ title, columns }: TableSectionProps) {
       return;
     }
 
-    // Зберігаємо рядок тільки якщо хоч одне поле заповнене
-    if (newRow.some(cell => cell.trim() !== "")) {
-      setRows([...rows, newRow]);
-    }
-
+    setRows([...rows, newRow]);
     setNewRow(columns.map(() => ""));
     setErrors("");
   };
