@@ -189,34 +189,23 @@ async def predict_options():
 async def generate_pdf(data: GeneratePdfRequest):
     class PDF(FPDF):
         def header(self):
-            if self.page_no() == 1:
-                return
-            self.set_font('Arial', '', 8)
-            self.cell(0, 10, f'Page {self.page_no()}', align='C')
+            self.set_font('Arial', 'B', 16)
+            self.cell(0, 10, 'Report on the Assessment of Losses of the Farming Enterprise', ln=True, align='C')
+            self.ln(10)
 
     try:
         pdf = PDF()
         pdf.add_page()
 
-        pdf.set_font('Arial', '', 18)
-        pdf.cell(0, 10, "ACT", ln=True, align="C")
-        pdf.cell(0, 10, "Damage Fixation for Agricultural Enterprise", ln=True, align="C")
-        pdf.cell(0, 10, "Due to Armed Aggression Against Ukraine", ln=True, align="C")
-        pdf.ln(20)
-
         pdf.set_font('Arial', '', 12)
-        pdf.cell(0, 10, "Applicant's Full Name: ____________________", ln=True)
-        pdf.cell(0, 10, "Date of Document: ________________________", ln=True)
-        pdf.cell(0, 10, "Location: _________________________________", ln=True)
+        pdf.cell(0, 10, "Information about the Enterprise:", ln=True)
+        pdf.cell(0, 10, "Name: _______________________", ln=True)
+        pdf.cell(0, 10, "Address: _______________________", ln=True)
+        pdf.cell(0, 10, "Entrepreneur / Legal Entity: _______________________", ln=True)
         pdf.ln(10)
-        pdf.multi_cell(0, 8, "This document records material damage caused by military aggression.")
-        pdf.ln(20)
 
-        def add_table(title, items, headers, row_func):
-            if not items:
-                return 0
-            pdf.add_page()
-            pdf.set_font('Arial', '', 14)
+        def add_table(title, headers, rows):
+            pdf.set_font('Arial', 'B', 14)
             pdf.cell(0, 10, title, ln=True)
             pdf.ln(5)
             pdf.set_font('Arial', '', 10)
@@ -224,45 +213,61 @@ async def generate_pdf(data: GeneratePdfRequest):
             for header in headers:
                 pdf.cell(col_width, 8, header, border=1, align='C')
             pdf.ln()
-            total = 0
-            for item in items:
-                row = row_func(item)
-                for value in row:
-                    pdf.cell(col_width, 8, str(value), border=1, align='C')
+            for row in rows:
+                for item in row:
+                    pdf.cell(col_width, 8, str(item), border=1, align='C')
                 pdf.ln()
-                total += row[-1]
-            pdf.ln(5)
-            pdf.set_font('Arial', '', 12)
-            pdf.cell(0, 10, f"Subtotal: {round(total, 2)} UAH", ln=True)
-            return total
+            pdf.ln(10)
 
-        grand_total = 0
-        grand_total += add_table("I. Equipment", data.technique, ["Name", "Qty", "Price per unit", "Total"],
-                                 lambda item: [item.name, item.quantity, item.price, round(item.quantity * item.price, 2)])
-        grand_total += add_table("II. Animals", data.animals, ["Name", "Qty", "Price per head", "Total"],
-                                 lambda item: [item.name, item.quantity, item.price_per_unit, round(item.quantity * item.price_per_unit, 2)])
-        grand_total += add_table("III. Territories", data.territories, ["Name", "Area (m²)", "Repair price/m²", "Total"],
-                                 lambda item: [item.name, item.area_m2, item.repair_price_per_m2, round(item.area_m2 * item.repair_price_per_m2, 2)])
-        grand_total += add_table("IV. Buildings and Storages", data.buildings, ["Name", "Area (m²)", "Price"],
-                                 lambda item: [item.name, item.area_m2, item.price])
+        # I. Equipment
+        add_table(
+            "I. Equipment",
+            ["Name", "Quantity", "Price per unit (UAH)"],
+            [[tech.name, tech.quantity, tech.price] for tech in data.technique]
+        )
 
-        pdf.add_page()
-        pdf.set_font('Arial', '', 16)
-        pdf.cell(0, 10, "Forecast Data", ln=True, align="C")
-        pdf.ln(10)
+        # II. Animals
+        add_table(
+            "II. Animals",
+            ["Name", "Quantity", "Price per head (UAH)"],
+            [[animal.name, animal.quantity, animal.price_per_unit] for animal in data.animals]
+        )
+
+        # III. Territories
+        add_table(
+            "III. Territories",
+            ["Name", "Area (m²)", "Repair cost per m² (UAH)"],
+            [[territory.name, territory.area_m2, territory.repair_price_per_m2] for territory in data.territories]
+        )
+
+        # IV. Buildings and Warehouses
+        add_table(
+            "IV. Buildings and Warehouses",
+            ["Name", "Area (m²)", "Repair cost (UAH)"],
+            [[building.name, building.area_m2, building.price] for building in data.buildings]
+        )
+
+        # Forecast Data
+        pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 10, "Forecast Data", ln=True)
+        pdf.ln(5)
         pdf.set_font('Arial', '', 10)
-        for date, value, dcf in zip(data.prediction.forecast_dates, data.prediction.forecast_values, data.prediction.dcf_values):
-            pdf.cell(0, 8, f"{date}: Forecast = {round(value, 2)} UAH, DCF = {round(dcf, 2)} UAH", ln=True)
-        pdf.ln(10)
-        pdf.set_font('Arial', '', 12)
-        pdf.cell(0, 10, f"Total NPV: {round(data.prediction.total_npv, 2)} UAH", ln=True)
+        col_width = pdf.w / 3 - 10
+        headers = ["Date", "Projected Value (UAH)", "DCF Value (UAH)"]
+        for header in headers:
+            pdf.cell(col_width, 8, header, border=1, align='C')
+        pdf.ln()
+        for date, proj_val, dcf_val in zip(data.prediction.forecast_dates, data.prediction.forecast_values, data.prediction.dcf_values):
+            pdf.cell(col_width, 8, date, border=1, align='C')
+            pdf.cell(col_width, 8, f"{round(proj_val, 2)}", border=1, align='C')
+            pdf.cell(col_width, 8, f"{round(dcf_val, 2)}", border=1, align='C')
+            pdf.ln()
 
-        pdf.add_page()
-        pdf.set_font('Arial', '', 18)
-        pdf.cell(0, 10, f"TOTAL DAMAGES: {round(grand_total, 2)} UAH", ln=True, align="C")
         pdf.ln(20)
-        pdf.set_font('Arial', '', 14)
-        pdf.cell(0, 10, "Applicant's Signature: ____________________", ln=True)
+        pdf.cell(0, 10, "Signatures:", ln=True)
+        pdf.cell(0, 10, "Prepared by: _______________________", ln=True)
+        pdf.cell(0, 10, "Verified by: _______________________", ln=True)
+        pdf.cell(0, 10, "Date of report preparation: _______________________", ln=True)
 
         pdf_bytes = pdf.output(dest='S').encode('latin1')
         encoded = base64.b64encode(pdf_bytes).decode()
@@ -270,8 +275,7 @@ async def generate_pdf(data: GeneratePdfRequest):
         return {"pdf_base64": encoded}
 
     except Exception as e:
-        print(f"PDF generation error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"PDF generation error: {str(e)}")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
