@@ -1,7 +1,12 @@
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function HeroSection() {
+  const scrollToForm = () => {
+    const formSection = document.getElementById('form-intro-section');
+    formSection?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <section
       className="min-h-screen flex flex-col items-center px-6"
@@ -39,11 +44,12 @@ export default function HeroSection() {
             Допомагаємо українським фермерам оцінити втрати від війни і подати
             юридичні вимоги на відшкодування
           </p>
-          <Link href="/form">
-            <button className="mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-lg shadow-md">
-              Заповнити форму
-            </button>
-          </Link>
+          <button 
+            onClick={scrollToForm}
+            className="mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-lg shadow-md"
+          >
+            Заповнити форму
+          </button>
         </div>
 
         <div className="flex justify-center">

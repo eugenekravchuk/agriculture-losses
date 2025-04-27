@@ -1,8 +1,29 @@
-import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import DcfForm from "@/app/dcf-form/page";
 
 export default function FormIntroSection() {
+  const [showDcfForm, setShowDcfForm] = useState(false);
+  const router = useRouter();
+
+  function handleDcfSave(predictionData) {
+    if (!predictionData) {
+      console.error('No prediction data received');
+      return;
+    }
+    
+    localStorage.setItem('predictionData', JSON.stringify(predictionData));
+    setShowDcfForm(false);
+    router.push('/loss-form');
+  }
+
+  function handleCloseDcfForm() {
+    setShowDcfForm(false);
+  }
+
   return (
     <section
+      id="form-intro-section"
       className="min-h-screen flex items-center justify-center px-6"
       style={{
         backgroundImage: "linear-gradient(to right, white 40%, #3b82f6 100%)",
@@ -50,13 +71,21 @@ export default function FormIntroSection() {
             </div>
           </div>
 
-          <Link href="/form">
-            <button className="mt-12 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-lg shadow-md">
-              Заповнити форму
-            </button>
-          </Link>
+          <button 
+            onClick={() => setShowDcfForm(true)}
+            className="mt-12 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-lg shadow-md"
+          >
+            Заповнити форму
+          </button>
         </div>
       </div>
+
+      {showDcfForm ? (
+        <DcfForm
+          onSave={handleDcfSave}
+          onClose={handleCloseDcfForm}
+        />
+      ) : null}
     </section>
   );
 }

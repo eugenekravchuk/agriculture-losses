@@ -17,9 +17,11 @@ import uvicorn
 app = FastAPI(title="Agricultural Model API")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origins=["http://localhost:3000", "https://agriculture-losses-1llp.onrender.com"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
+    max_age=3600
 )
 
 
