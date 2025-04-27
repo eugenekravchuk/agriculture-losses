@@ -139,7 +139,7 @@ export default function DcfForm({ onSave, onClose }) {
         discountRate: 0.1
       };
 
-      const response = await fetch(`${API_URL}/predict`, {
+      const response = await fetch(`https://agriculture-losses-1llp.onrender.com//predict`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

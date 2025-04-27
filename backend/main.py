@@ -121,6 +121,7 @@ async def predict(data: TimeSeriesData):
         
         return JSONResponse(
             content=response.dict(),
+            
             headers={
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
@@ -142,11 +143,10 @@ async def options_generate_pdf():
         }
     )
 
-# Add OPTIONS endpoint for CORS preflight requests
 @app.options("/predict")
 async def predict_options():
     return JSONResponse(
-        content={"message": "OK"},
+        status_code=200,
         headers={
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "POST, GET, OPTIONS",

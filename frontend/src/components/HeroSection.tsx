@@ -7,6 +7,16 @@ import Link from "next/link";
 export default function HeroSection() {
   const [isOpen, setIsOpen] = useState(false);
 
+  const scrollToForm = () => {
+    const formSection = document.getElementById('form-intro-section');
+    if (formSection) {
+      formSection.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -114,7 +124,7 @@ export default function HeroSection() {
             юридичні вимоги на відшкодування
           </p>
           <button
-            // onClick={scrollToForm}
+            onClick={scrollToForm}
             className="mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-lg shadow-md"
           >
             Заповнити форму
