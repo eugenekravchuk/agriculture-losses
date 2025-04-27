@@ -74,18 +74,55 @@ class GeneratePdfRequest(BaseModel):
     prediction: PredictionData
 
 def predict_timeseries(dates, values):
-    df = pd.DataFrame({
-        'Date': pd.to_datetime(dates, format='%d.%m.%Y'),
-        'Value': values
-    }).set_index('Date')
-    
-    df = df.asfreq('YS')
-    model = ARIMA(df['Value'], order=(1, 1, 1))
-    model_fit = model.fit()
-    forecast_steps = 3
-    forecast = model_fit.forecast(steps=forecast_steps)
-    forecast.index = pd.date_range(start=df.index[-1] + pd.DateOffset(years=1), periods=forecast_steps, freq='YS')
-    return df.index, df['Value'], forecast.index, forecast
+    try:
+        if len(dates) < 2:
+            raise ValueError("At least two dates are required for prediction")
+
+        years = []
+        
+        for date in dates:
+            parts = date.split('.')
+            if len(parts) != 3:
+                raise ValueError(f"Invalid date format: {date}. Expected DD.MM.YYYY")
+                
+            day, month, year = map(int, parts)
+            years.append(year)
+            
+            current_year = pd.Timestamp.now().year
+            if not (2000 <= year <= current_year + 5):
+                raise ValueError(f"Year must be between 2000 and {current_year + 5}")
+            
+            if not (1 <= month <= 12):
+                raise ValueError(f"Month must be between 1 and 12")
+                
+            days_in_month = pd.Timestamp(year, month, 1).days_in_month
+            if not (1 <= day <= days_in_month):
+                raise ValueError(f"Invalid day for month {month}: {day}. Must be between 1 and {days_in_month}")
+
+        if len(set(years)) < 2:
+            raise ValueError("Data must span at least two different years for prediction")
+
+        df = pd.DataFrame({
+            'Date': pd.to_datetime(dates, format='%d.%m.%Y'),
+            'Value': values
+        }).set_index('Date')
+        
+        df = df.asfreq('YS')
+        model = ARIMA(df['Value'], order=(1, 1, 1))
+        model_fit = model.fit()
+        forecast_steps = 3
+        forecast = model_fit.forecast(steps=forecast_steps)
+        forecast.index = pd.date_range(
+            start=df.index[-1] + pd.DateOffset(years=1), 
+            periods=forecast_steps, 
+            freq='YS'
+        )
+        return df.index, df['Value'], forecast.index, forecast
+
+    except ValueError as e:
+        raise ValueError(f"Date validation error: {str(e)}")
+    except Exception as e:
+        raise Exception(f"Prediction error: {str(e)}")
 
 def calculate_dcf(dates, values, discount_rate):
     base_year = 2021
