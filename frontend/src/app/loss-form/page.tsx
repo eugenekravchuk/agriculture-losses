@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TableSection from "./TableSection";
 import { Line } from "react-chartjs-2";
 import {
@@ -13,7 +13,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { useSearchParams } from 'next/navigation';
+import { ReadonlyURLSearchParams, useSearchParams } from 'next/navigation';
 
 ChartJS.register(
   CategoryScale,
@@ -100,7 +100,6 @@ export default function LossForm() {
         24070170000, 24136140000, 28881260000, 26334100000, 24233750000, 7064908000,
         7060010000
       ],
-      predictedDates: ['2022', '2023', '2024', '2025'],
       predictedValues: [30017200000, 31141490000, 32254240000, 33355570000]
     };
 
@@ -108,7 +107,7 @@ export default function LossForm() {
       labels: hardcodedData.actualDates,
       datasets: [
         {
-          label: "Raw Data",
+          label: "Історичні дані",
           data: hardcodedData.actualValues,
           borderColor: "blue",
           backgroundColor: "transparent",
@@ -117,11 +116,8 @@ export default function LossForm() {
           tension: 0
         },
         {
-          label: "Predicted Data (from 2022)",
-          // Start the prediction line from 2021 to connect with actual data
-          data: [...Array(26).fill(null), 
-                 hardcodedData.actualValues[26], // 2021 value
-                 ...hardcodedData.predictedValues],
+          label: "Прогнозовані дані",
+          data: [...Array(27).fill(null), ...hardcodedData.predictedValues],
           borderColor: "red",
           backgroundColor: "transparent",
           borderWidth: 1,
@@ -146,23 +142,14 @@ export default function LossForm() {
         x: {
           grid: {
             color: 'rgba(0, 0, 0, 0.1)',
-            drawBorder: true
-          },
-          ticks: {
-            font: {
-              size: 11
-            }
           }
         },
         y: {
           grid: {
             color: 'rgba(0, 0, 0, 0.1)',
-            drawBorder: true
           },
           ticks: {
-            font: {
-              size: 11
-            }
+            callback: (value: number) => `${(value / 1_000_000).toFixed(0)}M`
           }
         }
       },
@@ -328,6 +315,6 @@ export default function LossForm() {
           )}
         </div>
       </div>
-    </div>
   );
 }
+
