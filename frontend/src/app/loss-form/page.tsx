@@ -104,7 +104,7 @@ export default function LossForm({
         },
       };
   
-      const response = await fetch("https://your-render-domain.onrender.com/generate-pdf", {
+      const response = await fetch("https://agriculture-losses-1llp.onrender.com/generate-pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
