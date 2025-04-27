@@ -95,9 +95,10 @@ agriculture-losses/
 
 ## 👥 Team
 
-| Name | Role | GitHub |
-|:----|:-----|:-------|
-| Eugene Kravchuk | Fullstack Developer | [@eugenekravchuk](https://github.com/eugenekravchuk) |
+- [Yuliana Hrynda](https://github.com/YulianaHrynda)
+- [Eugene Kravchuk](https://github.com/eugenekravchuk)
+- [Roman Pavlosiuk](https://github.com/gllekkoff)
+- [Oleksandra Ostafiichuk](https://github.com/OleksandraOO)
 
 ---
 
