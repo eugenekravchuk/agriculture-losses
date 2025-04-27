@@ -132,6 +132,17 @@ export default function DcfForm({ onSave, onClose }) {
 
   const handleSave = async () => {
     try {
+      const years = new Set(
+        rows.map(row => {
+          const parts = row.date.split('.');
+          return parts[2];
+        })
+      );
+
+      if (years.size < 2) {
+        throw new Error('Будь ласка, введіть дані мінімум за два різні роки');
+      }
+
       const formData = {
         dates: rows.map(row => {
           const parts = row.date.split('.');
