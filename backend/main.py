@@ -10,15 +10,17 @@ import base64
 from fpdf import FPDF
 import os
 import uvicorn
+from fastapi.responses import JSONResponse
 
 app = FastAPI(title="Agricultural Losses API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:3000", "https://agriculture-losses-1llp.onrender.com"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
+    max_age=3600
 )
 
 class TimeSeriesData(BaseModel):
@@ -124,8 +126,19 @@ async def predict(data: TimeSeriesData):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
+@app.options("/generate-pdf", include_in_schema=False)
+async def options_generate_pdf():
+    return JSONResponse(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "http://localhost:3000",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type",
+        }
+    )
+
 @app.post("/generate-pdf")
-@app.options("/generate-pdf")
 async def generate_pdf(data: GeneratePdfRequest):
     class PDF(FPDF):
         def header(self):
