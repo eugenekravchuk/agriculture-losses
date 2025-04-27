@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./dcf-form.module.css";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -127,34 +128,41 @@ export default function DcfForm({ onSave, onClose }) {
     setRows(copy);
   };
 
+  const router = useRouter();
+
   const handleSave = async () => {
     setLoading(true);
     try {
-      console.log('Sending data:', {
+      const formData = {
         dates: rows.map(row => row.date),
         values: rows.map(row => parseFloat(row.cashFlow)),
-        discount_rate: 0.1
-      });
+        discountRate: 0.1
+      };
 
       const response = await fetch(`${API_URL}/predict`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          dates: rows.map(row => row.date),
-          values: rows.map(row => parseFloat(row.cashFlow)),
-          discount_rate: 0.1
+          dates: formData.dates,
+          values: formData.values,
+          discount_rate: formData.discountRate
         })
       });
 
-      console.log('Response status:', response.status);
-      const result = await response.json();
-      console.log('API response:', result);
+      const predictionData = await response.json();
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch prediction data');
+      }
 
-      onSave(result);
-    } catch (e) {
-      console.error('Error details:', e);
+      onSave(predictionData);
+      
+      router.push('/loss-form');
+
+    } catch (error) {
+      console.error('Prediction failed:', error);
       alert("Помилка при збереженні");
     } finally {
       setLoading(false);
