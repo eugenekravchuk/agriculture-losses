@@ -12,6 +12,15 @@ import base64
 from fpdf import FPDF
 import os
 import uvicorn
+from fastapi.responses import JSONResponse
+
+class CustomHeaderMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        return response
 
 class CustomHeaderMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -131,6 +140,18 @@ async def predict(data: TimeSeriesData):
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.options("/generate-pdf", include_in_schema=False)
+async def options_generate_pdf():
+    return JSONResponse(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "http://localhost:3000",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type",
+        }
+    )
 
 # Add OPTIONS endpoint for CORS preflight requests
 @app.options("/predict")
