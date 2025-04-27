@@ -1,20 +1,16 @@
-"use client";
+'use client';
 
 import React, { useState } from "react";
+import Papa from "papaparse";
 
-interface TableSectionProps<T> {
+interface TableSectionProps {
   title: string;
   columns: string[];
-  items: T[];
-  setItems: React.Dispatch<React.SetStateAction<T[]>>;
+  items: any[];
+  setItems: (items: any[]) => void;
 }
 
-export default function TableSection<T extends object>({
-  title,
-  columns,
-  items,
-  setItems,
-}: TableSectionProps<T>) {
+export default function TableSection({ title, columns, items, setItems }: TableSectionProps) {
   const [newRow, setNewRow] = useState<string[]>(columns.map(() => ""));
   const [errors, setErrors] = useState("");
 
@@ -25,25 +21,18 @@ export default function TableSection<T extends object>({
   };
 
   const validateNewRow = () => {
-    for (let i = 0; i < columns.length; i++) {
-      const value = newRow[i].trim();
-      const colName = columns[i].toLowerCase();
+    let hasError = false;
+    newRow.forEach((cell, colIdx) => {
+      const isNumericColumn = columns[colIdx].toLowerCase().includes('кількість') ||
+                               columns[colIdx].toLowerCase().includes('площа') ||
+                               columns[colIdx].toLowerCase().includes('ціна') ||
+                               columns[colIdx].toLowerCase().includes('вартість');
 
-      if (!value) {
-        return "Всі поля повинні бути заповнені.";
+      if (isNumericColumn && cell && isNaN(Number(cell))) {
+        hasError = true;
       }
-
-      const isNumericColumn =
-        colName.includes("кількість") ||
-        colName.includes("площа") ||
-        colName.includes("ціна") ||
-        colName.includes("вартість");
-
-      if (isNumericColumn && isNaN(Number(value))) {
-        return `Поле "${columns[i]}" повинно бути числом.`;
-      }
-    }
-    return "";
+    });
+    return hasError ? "Помилка: введено неправильний формат числа." : "";
   };
 
   const handleAddRow = () => {
@@ -53,72 +42,78 @@ export default function TableSection<T extends object>({
       return;
     }
 
-    const mappedRow: any = {};
+    if (newRow.some(cell => cell.trim() !== "")) {
+      const formattedRow = newRow.map((cell, idx) => {
+        const isNumericColumn = columns[idx].toLowerCase().includes('кількість') ||
+                                columns[idx].toLowerCase().includes('площа') ||
+                                columns[idx].toLowerCase().includes('ціна') ||
+                                columns[idx].toLowerCase().includes('вартість');
+        return isNumericColumn ? Number(cell) : cell;
+      });
 
-    columns.forEach((col, idx) => {
-      const colName = col.toLowerCase();
-      const value = newRow[idx].trim();
+      setItems([...items, formattedRow]);
+    }
 
-      // intelligently parse numbers if column looks numeric
-      const isNumericColumn =
-        colName.includes("кількість") ||
-        colName.includes("площа") ||
-        colName.includes("ціна") ||
-        colName.includes("вартість");
-
-      mappedRow[getMappedField(colName)] = isNumericColumn
-        ? Number(value)
-        : value;
-    });
-
-    setItems((prev) => [...prev, mappedRow]);
     setNewRow(columns.map(() => ""));
     setErrors("");
   };
 
-  const getMappedField = (colName: string) => {
-    if (colName.includes("кількість")) return "quantity";
-    if (colName.includes("площа")) return "area_m2";
-    if (colName.includes("вартість") || colName.includes("вартість об'єкта"))
-      return "price";
-    if (colName.includes("ціна за голову")) return "price_per_unit";
-    if (colName.includes("ціна за відновлення")) return "repair_price_per_m2";
-    return "name";
+  const handleCsvUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (result) => {
+        const parsedData = result.data as any[];
+        const mappedData = parsedData.map(item => Object.values(item));
+        setItems(mappedData);
+      },
+      error: (error) => {
+        console.error('Помилка при парсингу CSV:', error);
+        setErrors('Не вдалося завантажити CSV');
+      }
+    });
   };
 
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-700">{title}</h2>
 
+      <div className="flex items-center gap-4 mb-4">
+        <input
+          type="file"
+          accept=".csv"
+          onChange={handleCsvUpload}
+          className="file:mr-4 file:py-2 file:px-4
+                     file:rounded-full file:border-0
+                     file:text-sm file:font-semibold
+                     file:bg-blue-50 file:text-blue-700
+                     hover:file:bg-blue-100
+                     transition"
+        />
+        <span className="text-gray-500 text-sm">або додайте вручну нижче</span>
+      </div>
+
       <div className="bg-gray-50 rounded-xl shadow-sm p-4">
-        <div
-          className={`overflow-x-auto ${
-            items.length > 5 ? "max-h-80 overflow-y-auto" : ""
-          }`}
-        >
+        <div className={`overflow-x-auto ${items.length > 5 ? 'max-h-80 overflow-y-auto' : ''}`}>
           <table className="w-full text-left table-auto">
             <thead className="sticky top-0 bg-gray-100">
               <tr>
                 {columns.map((col, idx) => (
-                  <th
-                    key={idx}
-                    className="px-4 py-2 text-gray-600 font-semibold"
-                  >
-                    {col}
-                  </th>
+                  <th key={idx} className="px-4 py-2 text-gray-600 font-semibold">{col}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {items.map((row, rowIndex) => (
                 <tr key={rowIndex} className="border-t">
-                  {columns.map((col, colIndex) => (
+                  {row.map((cell: any, colIndex: number) => (
                     <td key={colIndex} className="px-4 py-2">
                       <input
                         type="text"
-                        value={
-                          (row as any)[getMappedField(col.toLowerCase())] ?? ""
-                        }
+                        value={cell}
                         disabled
                         className="w-full bg-transparent text-gray-800"
                         readOnly
@@ -127,16 +122,13 @@ export default function TableSection<T extends object>({
                   ))}
                 </tr>
               ))}
-              {/* New Row */}
               <tr className="border-t">
                 {newRow.map((cell, colIndex) => (
                   <td key={colIndex} className="px-4 py-2">
                     <input
                       type="text"
                       value={cell}
-                      onChange={(e) =>
-                        handleInputChange(colIndex, e.target.value)
-                      }
+                      onChange={(e) => handleInputChange(colIndex, e.target.value)}
                       className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
                     />
                   </td>
@@ -154,7 +146,7 @@ export default function TableSection<T extends object>({
           onClick={handleAddRow}
           className="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full transition transform hover:scale-105"
         >
-          +
+          Додати рядок
         </button>
       </div>
     </div>
