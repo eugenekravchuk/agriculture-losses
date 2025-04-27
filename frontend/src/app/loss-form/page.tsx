@@ -115,11 +115,6 @@ export default function LossForm({
       setIsLoading(true);
       setPdfGenerated(false);
 
-      console.log(technique);
-      console.log(animals);
-      console.log(territories);
-      console.log(buildings);
-
       const response = await fetch(
         "https://agriculture-losses-1llp.onrender.com/generate-pdf",
         {
