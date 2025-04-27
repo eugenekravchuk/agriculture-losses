@@ -131,41 +131,45 @@ export default function DcfForm({ onSave, onClose }) {
   const router = useRouter();
 
   const handleSave = async () => {
-    setLoading(true);
     try {
       const formData = {
-        dates: rows.map(row => row.date),
-        values: rows.map(row => parseFloat(row.cashFlow)),
-        discountRate: 0.1
+        dates: rows.map(row => {
+          const parts = row.date.split('.');
+          if (parts.length !== 3 || parts[0].length !== 2 || parts[1].length !== 2 || parts[2].length !== 4) {
+            throw new Error('Неправильний формат дати. Використовуйте ДД.ММ.РРРР');
+          }
+          return row.date;
+        }),
+        values: rows.map(row => {
+          const value = parseFloat(row.cashFlow);
+          if (isNaN(value)) {
+            throw new Error('Неправильне числове значення');
+          }
+          return value;
+        }),
+        discount_rate: 0.1
       };
 
-      const response = await fetch(`https://agriculture-losses-1llp.onrender.com//predict`, {
+      const response = await fetch(`https://agriculture-losses-1llp.onrender.com/predict`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          dates: formData.dates,
-          values: formData.values,
-          discount_rate: formData.discountRate
-        })
+        body: JSON.stringify(formData)
       });
 
-      const predictionData = await response.json();
-      
       if (!response.ok) {
-        throw new Error('Failed to fetch prediction data');
+        const errorData = await response.json();
+        throw new Error(errorData.detail?.message || 'Failed to fetch prediction data');
       }
 
+      const predictionData = await response.json();
       onSave(predictionData);
-      
       router.push('/loss-form');
 
     } catch (error) {
       console.error('Prediction failed:', error);
-      alert("Помилка при збереженні");
-    } finally {
-      setLoading(false);
+      alert(`Помилка при збереженні: ${error.message}`);
     }
   };
 

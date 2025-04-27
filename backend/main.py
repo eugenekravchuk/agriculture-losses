@@ -14,26 +14,20 @@ import os
 import uvicorn
 from fastapi.responses import JSONResponse
 
-class CustomHeaderMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        response = await call_next(request)
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-        return response
-
 app = FastAPI(title="Agricultural Losses API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
+    allow_origins=[
+        "http://localhost:3000",
+        "https://agriculture-losses.vercel.app",
+        "https://agriculture-losses-1llp.onrender.com"
+    ],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"],
+    expose_headers=["*"]
 )
-
-app.add_middleware(CustomHeaderMiddleware)
 
 class TimeSeriesData(BaseModel):
     dates: List[str]
@@ -80,7 +74,11 @@ class GeneratePdfRequest(BaseModel):
     prediction: PredictionData
 
 def predict_timeseries(dates, values):
-    df = pd.DataFrame({'Date': pd.to_datetime(dates), 'Value': values}).set_index('Date')
+    df = pd.DataFrame({
+        'Date': pd.to_datetime(dates, format='%d.%m.%Y'),
+        'Value': values
+    }).set_index('Date')
+    
     df = df.asfreq('YS')
     model = ARIMA(df['Value'], order=(1, 1, 1))
     model_fit = model.fit()
@@ -112,25 +110,20 @@ async def predict(data: TimeSeriesData):
         raw_dates, raw_values, pred_dates, pred_values = predict_timeseries(data.dates, data.values)
         dcf_values = calculate_dcf(pred_dates, pred_values, data.discount_rate)
         
-        response = PredictionResponse(
+        return PredictionResponse(
             forecast_dates=[d.strftime("%d-%m-%Y") for d in pred_dates],
             forecast_values=pred_values.tolist(),
             dcf_values=dcf_values,
             total_npv=sum(dcf_values)
         )
-        
-        return JSONResponse(
-            content=response.dict(),
-            
-            headers={
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type",
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "message": "Prediction failed",
+                "error": str(e)
             }
         )
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
 
 @app.options("/generate-pdf", include_in_schema=False)
 async def options_generate_pdf():
@@ -143,7 +136,7 @@ async def options_generate_pdf():
         }
     )
 
-@app.options("/predict")
+@app.options("/predict", include_in_schema=False)
 async def predict_options():
     return JSONResponse(
         status_code=200,
