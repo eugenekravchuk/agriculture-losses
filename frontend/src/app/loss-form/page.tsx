@@ -1,30 +1,11 @@
-''use client';
+'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TableSection from "./TableSection";
-import { jsPDF } from "jspdf";
 import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
 
-// ✅ Зареєструвати обов'язкові елементи для ChartJS
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 interface PredictionData {
   dates: string[];
@@ -35,25 +16,17 @@ interface PredictionData {
   total_npv: number;
 }
 
-interface LossFormProps {
-  chartData: PredictionData | null;
-}
-
-export default function LossForm({ chartData }: LossFormProps) {
+export default function LossForm({ chartData }: { chartData: PredictionData | null }) {
   const [pdfGenerated, setPdfGenerated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [pdfPreview, setPdfPreview] = useState<string | null>(null);
 
   const chartOptions = {
     responsive: true,
     plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      title: {
-        display: true,
-        text: 'Прогноз грошових потоків',
-      },
+      legend: { position: 'top' as const },
+      title: { display: true, text: 'Прогноз грошових потоків' },
     },
   };
 
@@ -86,17 +59,49 @@ export default function LossForm({ chartData }: LossFormProps) {
   };
 
   const handleGeneratePDF = async () => {
-    setIsLoading(true);
-    setPdfGenerated(false);
+    try {
+      setIsLoading(true);
+      setPdfGenerated(false);
 
-    setTimeout(() => {
-      const blob = new Blob(["Dummy PDF content"], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
+      const response = await fetch('https://your-render-domain.onrender.com/generate-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          technique: [],
+          animals: [],
+          territories: [],
+          buildings: [],
+          prediction: chartData
+        }),
+      });
 
-      setPdfUrl(url);
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+
+      const result = await response.json();
+      const base64PDF = result.pdf_base64;
+
+      const pdfBlob = new Blob(
+        [Uint8Array.from(atob(base64PDF), c => c.charCodeAt(0))],
+        { type: 'application/pdf' }
+      );
+
+      const pdfBlobUrl = URL.createObjectURL(pdfBlob);
+      setPdfUrl(pdfBlobUrl);
+
+      // Генеруємо прев'ю першої сторінки PDF
+      const previewUrl = `data:application/pdf;base64,${base64PDF}`;
+      setPdfPreview(previewUrl);
+
       setIsLoading(false);
       setPdfGenerated(true);
-    }, 2000);
+
+    } catch (error) {
+      console.error("Помилка при генерації PDF:", error);
+      setIsLoading(false);
+      alert("Не вдалося створити PDF документ");
+    }
   };
 
   return (
@@ -129,14 +134,18 @@ export default function LossForm({ chartData }: LossFormProps) {
         </div>
 
         {pdfGenerated && pdfUrl && (
-          <div className="mt-8 flex flex-col items-center">
-            <div className="w-24 h-32 bg-blue-100 flex items-center justify-center rounded-md shadow-inner">
-              <span className="text-4xl text-blue-600 font-bold">PDF</span>
-            </div>
+          <div className="mt-8 flex flex-col items-center space-y-4">
+            <iframe
+              src={pdfPreview ?? ""}
+              title="PDF Preview"
+              width="100%"
+              height="400px"
+              className="rounded-lg border shadow-md"
+            />
             <a
               href={pdfUrl}
               download="loss-form.pdf"
-              className="mt-4 text-blue-600 font-semibold underline hover:text-blue-800"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-full shadow-md transition hover:scale-105"
             >
               Завантажити документ
             </a>
