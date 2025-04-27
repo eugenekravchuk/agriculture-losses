@@ -25,9 +25,7 @@ export default function HeroSection() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Navbar */}
       <nav className="w-full max-w-5xl flex justify-start items-center py-6 text-black mt-[50px] mb-[20px] relative">
-        {/* Desktop Menu */}
         <div className="hidden md:flex gap-8 text-md font-semibold">
           <a href="#importance" className="hover:text-blue-600">
             Важливість
@@ -67,7 +65,6 @@ export default function HeroSection() {
         </button>
       </nav>
 
-      {/* Sliding Panel */}
       <div
         className={`fixed top-0 right-0 h-full w-[100%] bg-white z-40 transform transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "translate-x-full"
@@ -106,7 +103,6 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Hero Content */}
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         <div className="flex flex-col gap-6 px-4 md:px-0">
           <h1 className="text-4xl md:text-5xl font-bold">
@@ -117,11 +113,12 @@ export default function HeroSection() {
             Допомагаємо українським фермерам оцінити втрати від війни і подати
             юридичні вимоги на відшкодування
           </p>
-          <Link href="/form">
-            <button className="mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-lg shadow-md">
-              Заповнити форму
-            </button>
-          </Link>
+          <button
+            // onClick={scrollToForm}
+            className="mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-lg shadow-md"
+          >
+            Заповнити форму
+          </button>
         </div>
 
         <div className="hidden md:flex justify-center">
