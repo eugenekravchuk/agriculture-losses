@@ -12,6 +12,8 @@ interface FormError {
 }
 
 export default function DcfForm({ onSave, onClose }: { onSave: (data: any) => void; onClose: () => void }) {
+  const router = useRouter();
+
   if (typeof onClose !== 'function') {
     throw new Error('DcfForm: onClose prop must be a function');
   }
@@ -19,27 +21,33 @@ export default function DcfForm({ onSave, onClose }: { onSave: (data: any) => vo
     throw new Error('DcfForm: onSave prop must be a function');
   }
 
-  const [rows, setRows] = useState([{ date: "", cashFlow: "" }]);
+  const [rows, setRows] = useState([
+    { date: "", cashFlow: "" },
+    { date: "", cashFlow: "" }
+  ]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormError[]>([]);
-  const router = useRouter();
 
   const validateDate = (date: string): boolean => {
-    const dateRegex = /^(\d{2})\.(\d{2})\.(\d{4})$/;
-    if (!dateRegex.test(date)) return false;
-
-    const [, day, month, year] = date.match(dateRegex) || [];
-    const numYear = parseInt(year);
-    const numMonth = parseInt(month);
-    const numDay = parseInt(day);
+    if (!/^\d{2}\.\d{2}\.\d{4}$/.test(date)) {
+      return false;
+    }
+  
+    const [day, month, year] = date.split('.').map(num => parseInt(num, 10));
+    
     const currentYear = new Date().getFullYear();
-
-    if (numYear < 2000 || numYear > currentYear + 5) return false;
-    if (numMonth < 1 || numMonth > 12) return false;
-
-    const daysInMonth = new Date(numYear, numMonth, 0).getDate();
-    if (numDay < 1 || numDay > daysInMonth) return false;
-
+    if (year < 1990 || year > currentYear + 5) {
+      return false;
+    }
+  
+    if (month < 1 || month > 12) {
+      return false;
+    }
+  
+    if (day < 1 || day > 31) {
+      return false;
+    }
+  
     return true;
   };
 
@@ -52,7 +60,7 @@ export default function DcfForm({ onSave, onClose }: { onSave: (data: any) => vo
     const newRows = [...rows];
     newRows[index][field] = value;
     setRows(newRows);
-
+  
     // Validate and set errors
     const newErrors = errors.filter(e => !(e.rowIndex === index && e.type === field));
     
@@ -60,10 +68,10 @@ export default function DcfForm({ onSave, onClose }: { onSave: (data: any) => vo
       newErrors.push({
         type: 'date',
         rowIndex: index,
-        message: 'Невірний формат дати (ДД.ММ.РРРР)'
+        message: 'Дата має бути першим числом місяця (DD.MM.YYYY)'
       });
     }
-
+  
     if (field === 'cashFlow' && value && !validateCashFlow(value)) {
       newErrors.push({
         type: 'value',
@@ -71,58 +79,28 @@ export default function DcfForm({ onSave, onClose }: { onSave: (data: any) => vo
         message: 'Введіть додатнє число'
       });
     }
-
+  
     setErrors(newErrors);
   };
 
   const handleSave = async () => {
     try {
+      setLoading(true);
       const formData = {
         dates: rows.map(row => row.date),
-        values: rows.map(row => {
-          const value = parseFloat(row.cashFlow);
-          if (isNaN(value)) {
-            throw new Error('Invalid cash flow value');
-          }
-          return value;
-        }),
-        discount_rate: 0.1
+        values: rows.map(row => parseFloat(row.cashFlow)),
       };
 
-      console.log('Sending data:', formData); // Debug log
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/predict`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to fetch prediction data');
-      }
-
-      const predictionData = await response.json();
-      console.log('Received prediction:', predictionData);
-
-      const dataToPass = {
-        dates: formData.dates,
-        values: formData.values,
-        forecast_dates: predictionData.forecast_dates,
-        forecast_values: predictionData.forecast_values.map(v => parseFloat(v)),
-        dcf_values: predictionData.dcf_values.map(v => parseFloat(v)),
-        total_npv: parseFloat(predictionData.total_npv)
-      };
-
-      console.log('Data to pass:', dataToPass);
-      const encodedData = encodeURIComponent(JSON.stringify(dataToPass));
-      window.location.href = `/loss-form?data=${encodedData}`;
+      // Just call onSave with the data directly
+      await onSave(formData);
       
+      // Navigate to loss-form
+      router.push('/loss-form');
     } catch (error) {
-      console.error('Prediction failed:', error);
+      console.error('Failed:', error);
       alert(`Помилка при збереженні: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -221,76 +199,69 @@ export default function DcfForm({ onSave, onClose }: { onSave: (data: any) => vo
     return result;
   };
 
-  const updateRow = (i, field, val) => {
-    const copy = [...rows];
-    if (field === "date") {
-      copy[i][field] = formatDate(val);
-    } else if (field === "cashFlow") {
-      const numericValue = val.replace(/[^\d.]/g, '');
-      const parts = numericValue.split('.');
-      if (parts.length > 2) {
-        copy[i][field] = parts[0] + '.' + parts.slice(1).join('');
-      } else {
-        copy[i][field] = numericValue;
-      }
-    }
-    setRows(copy);
+  const handleCsvUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+  
+    Papa.parse(file, {
+      complete: (results) => {
+        if (!results.data || results.data.length === 0) {
+          alert('CSV файл порожній');
+          return;
+        }
+  
+        const parsedRows = results.data
+          .filter((row: any[]) => row.length >= 2)
+          .map((row: any[]) => ({
+            date: row[0].toString().trim(),
+            cashFlow: row[1].toString().trim()
+          }));
+  
+        setRows(parsedRows);
+        setErrors([]);
+      },
+      error: (error) => {
+        console.error('Error parsing CSV:', error);
+        alert('Помилка при обробці CSV файлу');
+      },
+      header: false,
+      skipEmptyLines: true
+    });
+  
+    event.target.value = '';
   };
 
-  const router = useRouter();
-
-  const handleSave = async () => {
-    try {
-      const years = new Set(
-        rows.map(row => {
-          const parts = row.date.split('.');
-          return parts[2];
-        })
-      );
-
-      if (years.size < 2) {
-        throw new Error('Будь ласка, введіть дані мінімум за два різні роки');
-      }
-
-      const formData = {
-        dates: rows.map(row => {
-          const parts = row.date.split('.');
-          if (parts.length !== 3 || parts[0].length !== 2 || parts[1].length !== 2 || parts[2].length !== 4) {
-            throw new Error('Неправильний формат дати. Використовуйте ДД.ММ.РРРР');
-          }
-          return row.date;
-        }),
-        values: rows.map(row => {
-          const value = parseFloat(row.cashFlow);
-          if (isNaN(value)) {
-            throw new Error('Неправильне числове значення');
-          }
-          return value;
-        }),
-        discount_rate: 0.1
-      };
-
-      const response = await fetch(`https://agriculture-losses-1llp.onrender.com/predict`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail?.message || 'Failed to fetch prediction data');
-      }
-
-      const predictionData = await response.json();
-      onSave(predictionData);
-      router.push('/loss-form');
-
-    } catch (error) {
-      console.error('Prediction failed:', error);
-      alert(`Помилка при збереженні: ${error.message}`);
+  const validateForm = () => {
+    // If we have more than 1 row, assume it's from CSV and skip validation
+    if (rows.length > 2) {
+      return true;
     }
+  
+    // For manually entered data, keep existing validation
+    if (rows.length < 2) {
+      alert('Будь ласка, додайте хоча б два записи');
+      return false;
+    }
+  
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      if (!validateDate(row.date)) {
+        alert(`Невірний формат дати в рядку ${i + 1}`);
+        return false;
+      }
+      if (!validateCashFlow(row.cashFlow)) {
+        alert(`Невірний формат числа в рядку ${i + 1}`);
+        return false;
+      }
+    }
+  
+    const years = new Set(rows.map(row => row.date.split('.')[2]));
+    if (years.size < 2) {
+      alert('Будь ласка, введіть дані мінімум за два різні роки');
+      return false;
+    }
+  
+    return true;
   };
 
   return (
@@ -304,20 +275,21 @@ export default function DcfForm({ onSave, onClose }: { onSave: (data: any) => vo
 
         <h2 className={styles.formTitle}>Форма обрахунку ДГП</h2>
 
-        <div className="mb-4 flex justify-start">
-          <input
-            type="file"
-            accept=".csv"
-            onChange={handleCsvUpload}
-            className="file:mr-4 file:py-2 file:px-4
-                      file:rounded-full file:border-0
-                      file:text-sm file:font-semibold
-                      file:bg-blue-50 file:text-blue-700
-                      hover:file:bg-blue-100
-                      transition"
-          />
+        <div className="mb-4 flex justify-start items-center">
+          <label className="relative inline-flex items-center">
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleCsvUpload}
+              className="file:mr-4 file:py-2 file:px-4
+                        file:rounded-full file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-blue-50 file:text-blue-700
+                        hover:file:bg-blue-100
+                        transition cursor-pointer"
+            />
+          </label>
         </div>
-
 
         <div className={styles.tableContainer}>
           <table className={styles.table}>
@@ -360,23 +332,12 @@ export default function DcfForm({ onSave, onClose }: { onSave: (data: any) => vo
                   </td>
                 </tr>
               ))}
-              <tr>
-                <td colSpan="2">
-                  <button 
-                    onClick={addRow} 
-                    className={styles.addButton}
-                    disabled={!isLastRowFilled()}
-                  >
-                    +
-                  </button>
-                </td>
-              </tr>
             </tbody>
           </table>
-          
           <button 
-            onClick={() => setRows([...rows, { date: "", cashFlow: "" }])}
-            className={styles.addButton}
+            onClick={addRow}           
+            className={styles.addButton} 
+            disabled={!isLastRowFilled()}
           >
             Додати рядок
           </button>

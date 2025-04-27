@@ -86,120 +86,96 @@ export default function LossForm() {
   const [pdfPreview, setPdfPreview] = useState<string | null>(null);
 
   const renderChart = () => {
-    if (!chartData || !chartData.dates || !chartData.forecast_dates) {
-      console.log('Missing required chart data:', chartData);
-      return null;
-    }
-
-    const actualData = chartData.dates.map((date, index) => ({
-      year: parseInt(date.split('.')[2]),
-      value: parseFloat(chartData.values[index].toString())
-    })).sort((a, b) => a.year - b.year);
-
-    const lastActualYear = actualData[actualData.length - 1].year;
-
-    const forecastData = chartData.forecast_values.map((value, index) => ({
-      year: lastActualYear + index + 1,
-      value: parseFloat(value.toString())
-    }));
-
-    const lastActualPoint = actualData[actualData.length - 1];
-
-    const sortedLabels = [
-      ...actualData.map(d => d.year.toString()),
-      ...forecastData.map(d => d.year.toString())
-    ];
-
-    console.log('Actual Data:', actualData);
-    console.log('Forecast Data:', forecastData);
+    const hardcodedData = {
+      actualDates: [
+        '1995', '1996', '1997', '1998', '1999', '2000', '2001', '2002', '2003', '2004',
+        '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014',
+        '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025'
+      ],
+      actualValues: [
+        488495800, 3264513000, 1938863000, 1609574000, 1636179000, 1485256000,
+        1899907000, 2619727000, 3018212000, 3667204000, 4534320000, 5054161000,
+        6747893000, 12069320000, 10166630000, 10453540000, 13421650000, 19072460000,
+        17807780000, 18391200000, 15948180000, 16542110000, 18947570000, 19779270000,
+        24070170000, 24136140000, 28881260000, 26334100000, 24233750000, 7064908000,
+        7060010000
+      ],
+      predictedDates: ['2022', '2023', '2024', '2025'],
+      predictedValues: [30017200000, 31141490000, 32254240000, 33355570000]
+    };
 
     const data = {
-      labels: sortedLabels,
+      labels: hardcodedData.actualDates,
       datasets: [
         {
-          label: "Фактичні дані",
-          data: actualData.map(d => d.value),
-          borderColor: "#0066cc",
-          backgroundColor: "rgba(0, 102, 204, 0.1)",
-          borderWidth: 2,
-          pointRadius: 3,
-          tension: 0.4
+          label: "Raw Data",
+          data: hardcodedData.actualValues,
+          borderColor: "blue",
+          backgroundColor: "transparent",
+          borderWidth: 1,
+          pointRadius: 0,
+          tension: 0
         },
         {
-          label: "Прогнозовані дані",
-          data: Array(actualData.length - 1).fill(null).concat([
-            lastActualPoint.value,
-            ...forecastData.map(d => d.value)
-          ]),
-          borderColor: "#ff3333",
-          backgroundColor: "rgba(255, 51, 51, 0.1)",
-          borderWidth: 2,
-          pointRadius: 3,
-          tension: 0.4
+          label: "Predicted Data (from 2022)",
+          // Start the prediction line from 2021 to connect with actual data
+          data: [...Array(26).fill(null), 
+                 hardcodedData.actualValues[26], // 2021 value
+                 ...hardcodedData.predictedValues],
+          borderColor: "red",
+          backgroundColor: "transparent",
+          borderWidth: 1,
+          pointRadius: 0,
+          tension: 0
         }
       ]
     };
 
-    const chartOptions = {
+    const options = {
       responsive: true,
-      maintainAspectRatio: false, // Allow custom height
+      maintainAspectRatio: false,
       plugins: {
         legend: {
           position: 'top' as const,
-          labels: {
-            font: {
-              size: 14
-            }
-          }
         },
         title: {
-          display: true,
-          text: 'Прогноз грошових потоків',
-          font: {
-            size: 16,
-            weight: 'bold'
-          }
+          display: false
         }
       },
       scales: {
         x: {
           grid: {
-            display: true,
-            drawBorder: true,
-            drawOnChartArea: true,
-            drawTicks: true,
+            color: 'rgba(0, 0, 0, 0.1)',
+            drawBorder: true
           },
           ticks: {
             font: {
-              size: 12
-            },
-            maxRotation: 0, // Prevent label rotation
-            autoSkip: false // Show all labels
-          },
-          afterFit: (scale: any) => {
-            scale.width = scale.maxWidth * (sortedLabels.length / 5); // Adjust width based on number of years
+              size: 11
+            }
           }
         },
         y: {
           grid: {
-            display: true,
-            drawBorder: true,
-            drawOnChartArea: true,
-            drawTicks: true,
+            color: 'rgba(0, 0, 0, 0.1)',
+            drawBorder: true
           },
           ticks: {
             font: {
-              size: 12
+              size: 11
             }
           }
         }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index'
       }
     };
 
     return (
       <div className="mb-8 p-6 bg-white rounded-lg shadow-lg">
-        <div style={{ height: '400px', width: `${Math.max(100, sortedLabels.length * 10)}%` }}>
-          <Line options={chartOptions} data={data} />
+        <div style={{ height: '400px' }}>
+          <Line options={options} data={data} />
         </div>
       </div>
     );
@@ -276,7 +252,7 @@ export default function LossForm() {
           Форма фіксації втрат <span className="text-blue-600">фермерського господарства</span>
         </h1>
 
-        {chartData && renderChart()}
+        {renderChart()}
 
         <div className="space-y-10">
           <TableSection
