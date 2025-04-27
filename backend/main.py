@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from fastapi.middleware import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel
 from typing import List
 import pandas as pd
@@ -46,7 +46,6 @@ class PredictionResponse(BaseModel):
     forecast_values: List[float]
     dcf_values: List[float]
     total_npv: float
-    chart: str
 
 class TechniqueItem(BaseModel):
     name: str
@@ -115,10 +114,10 @@ async def predict(data: TimeSeriesData):
         dcf_values = calculate_dcf(pred_dates, pred_values, data.discount_rate)
         
         response = PredictionResponse(
-            forecast_dates=[d.strftime("%Y-%m-%d") for d in pred_dates],
+            forecast_dates=[d.strftime("%d-%m-%Y") for d in pred_dates],
             forecast_values=pred_values.tolist(),
             dcf_values=dcf_values,
-            total_npv=sum(dcf_values),
+            total_npv=sum(dcf_values)
         )
         
         return JSONResponse(
