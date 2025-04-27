@@ -21,5 +21,5 @@ export default function LossFormPage() {
     }
   }, []);
 
-  return <LossForm chartData={chartData} />;
+  return <LossForm chartData={null} />;
 }
