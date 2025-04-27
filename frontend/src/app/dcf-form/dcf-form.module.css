@@ -171,3 +171,25 @@
   background: #93c5fd;
   cursor: not-allowed;
 }
+
+.errorInput {
+  border: 1px solid #dc2626 !important;
+  background-color: #fef2f2 !important;
+}
+
+.errorMessage {
+  color: #dc2626;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #fee2e2;
+  border-radius: 4px;
+}
+
+.errorRow {
+  background-color: #fef2f2;
+}
+
+.errorRow:hover {
+  background-color: #fee2e2;
+}
