@@ -85,46 +85,59 @@ export default function LossForm({
     try {
       setIsLoading(true);
       setPdfGenerated(false);
-
-      const response = await fetch("/api/generate-pdf", {
+  
+      if (!chartData) {
+        throw new Error("Немає даних для генерації PDF");
+      }
+  
+      const payload = {
+        technique: [],
+        animals: [],
+        territories: [],
+        buildings: [],
+        prediction: {
+          forecast_dates: chartData.forecast_dates,
+          forecast_values: chartData.forecast_values,
+          dcf_values: chartData.dcf_values,
+          total_npv: chartData.total_npv,
+          chart: "",
+        },
+      };
+  
+      const response = await fetch("https://your-render-domain.onrender.com/generate-pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          technique: [],
-          animals: [],
-          territories: [],
-          buildings: [],
-          prediction: chartData,
-        }),
+        body: JSON.stringify(payload),
       });
-
+  
       if (!response.ok) {
         throw new Error("Failed to generate PDF");
       }
-
+  
       const result = await response.json();
       const base64PDF = result.pdf_base64;
-
+  
       const pdfBlob = new Blob(
         [Uint8Array.from(atob(base64PDF), (c) => c.charCodeAt(0))],
         { type: "application/pdf" }
       );
-
+  
       const pdfBlobUrl = URL.createObjectURL(pdfBlob);
       setPdfUrl(pdfBlobUrl);
-
-      // Генеруємо прев'ю першої сторінки PDF
+  
       const previewUrl = `data:application/pdf;base64,${base64PDF}`;
       setPdfPreview(previewUrl);
-
+  
       setIsLoading(false);
       setPdfGenerated(true);
+  
     } catch (error) {
       console.error("Помилка при генерації PDF:", error);
       setIsLoading(false);
       alert("Не вдалося створити PDF документ");
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-pink-100 to-purple-200 py-12 px-6 flex flex-col items-center">
