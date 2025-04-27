@@ -15,7 +15,7 @@ app = FastAPI(title="Agricultural Losses API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -125,6 +125,7 @@ async def predict(data: TimeSeriesData):
         raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/generate-pdf")
+@app.options("/generate-pdf")
 async def generate_pdf(data: GeneratePdfRequest):
     class PDF(FPDF):
         def header(self):
