@@ -185,50 +185,39 @@ def predict_timeseries(dates, values):
         'Date': pd.to_datetime(dates),
         'Value': values
     }).set_index('Date')
-    
     df = df.asfreq('YS')
-    
     train_end = pd.Timestamp('2021-01-01')
     train_data = df.loc[:train_end, 'Value']
-    
     model = ARIMA(train_data, order=(1,1,1))
     model_fit = model.fit()
-    
     forecast_steps = 3
     forecast = model_fit.forecast(steps=forecast_steps)
     forecast.index = pd.date_range(start=train_end + pd.DateOffset(years=1), periods=forecast_steps, freq='YS')
-    
     return df.index, df['Value'], forecast.index, forecast
 
 def calculate_dcf(dates, values, discount_rate):
     base_year = 2021
     dcf_values = []
-    
     for date, value in zip(dates, values):
         year = date.year
         t = year - base_year
         dcf = value / (1 + discount_rate) ** t
         dcf_values.append(dcf)
-    
     return dcf_values
 
 def generate_chart(raw_dates, raw_values, pred_dates, pred_values):
     plt.figure(figsize=(12,6))
     plt.plot(raw_dates, raw_values, label='Historical Data', color='blue')
     plt.plot(pred_dates, pred_values, label='Forecast', color='red')
-    
     plt.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
     plt.gca().set_axisbelow(True)
-    
     plt.legend()
     plt.title('Trade Value Forecast')
     plt.xlabel('Year')
-    plt.ylabel('Trade Value')
-    
+    plt.ylabel('Value')
     buffer = io.BytesIO()
     plt.savefig(buffer, format='png')
     plt.close()
-    
     return base64.b64encode(buffer.getvalue()).decode()
 
 
@@ -256,7 +245,6 @@ async def predict(data: TimeSeriesData):
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-
     
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
