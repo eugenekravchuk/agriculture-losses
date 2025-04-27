@@ -233,7 +233,7 @@ async def generate_pdf(data: GeneratePdfRequest):
         pdf.set_font('Arial', '', 14)
         pdf.cell(0, 10, "Applicant's Signature: ____________________", ln=True)
 
-        pdf_bytes = pdf.output(dest='S').encode('latin1')
+        pdf_bytes = pdf.output(dest='S').encode('utf-8')
         encoded = base64.b64encode(pdf_bytes).decode()
 
         return {"pdf_base64": encoded}
