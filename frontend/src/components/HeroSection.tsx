@@ -2,19 +2,14 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function HeroSection() {
-  const scrollToForm = () => {
-    const formSection = document.getElementById('form-intro-section');
-    formSection?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <section
-      className="flex flex-col items-center px-6 pb-[100px]"
+      className="flex flex-col items-center px-6 pb-[100px] relative overflow-x-hidden"
       style={{
         backgroundImage: "url('/gradient-back.png')",
         backgroundSize: "cover",
@@ -43,60 +38,63 @@ export default function HeroSection() {
         {/* Burger Icon (Mobile) */}
         <button
           className="md:hidden ml-auto relative w-10 h-10 z-50"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => setIsOpen(true)}
         >
-          {/* Animated Burger Lines */}
-          <div
-            className={`absolute top-2 left-0 w-10 h-1 bg-black transition-transform duration-300 ${
-              isOpen ? "rotate-45 translate-y-4" : ""
-            }`}
-          ></div>
-          <div
-            className={`absolute top-4 left-0 w-10 h-1 bg-black transition-opacity duration-300 ${
-              isOpen ? "opacity-0" : ""
-            }`}
-          ></div>
-          <div
-            className={`absolute top-6 left-0 w-10 h-1 bg-black transition-transform duration-300 ${
-              isOpen ? "-rotate-45 -translate-y-4" : ""
-            }`}
-          ></div>
+          {/* Burger lines */}
+          <div className="absolute top-2 left-0 w-10 h-1 bg-black transition-all duration-300"></div>
+          <div className="absolute top-4 left-0 w-10 h-1 bg-black transition-all duration-300"></div>
+          <div className="absolute top-6 left-0 w-10 h-1 bg-black transition-all duration-300"></div>
         </button>
       </nav>
 
-      {/* Mobile Menu: appears below navbar */}
-      {isOpen && (
-        <div className="w-full max-w-5xl flex flex-col bg-white rounded-lg shadow-md py-6 mb-10 md:hidden animate-slide-down">
+      {/* Sliding Panel */}
+      <div
+        className={`fixed top-0 right-0 h-full w-[80%] bg-white shadow-lg z-40 transform transition-transform duration-300 ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        {/* Close button */}
+        <div className="flex justify-end p-4">
+          <button
+            onClick={() => setIsOpen(false)}
+            className="text-3xl font-bold"
+          >
+            &times;
+          </button>
+        </div>
+
+        {/* Menu Items */}
+        <div className="flex flex-col gap-4 p-6">
           <a
             href="#importance"
+            className="w-full bg-black text-white py-4 text-center text-lg font-semibold rounded-lg"
             onClick={() => setIsOpen(false)}
-            className="px-6 py-3 hover:bg-blue-100 font-semibold text-center"
           >
             Важливість
           </a>
           <a
             href="#how-it-works"
+            className="w-full bg-black text-white py-4 text-center text-lg font-semibold rounded-lg"
             onClick={() => setIsOpen(false)}
-            className="px-6 py-3 hover:bg-blue-100 font-semibold text-center"
           >
             Як працює
           </a>
           <a
             href="#what-to-enter"
+            className="w-full bg-black text-white py-4 text-center text-lg font-semibold rounded-lg"
             onClick={() => setIsOpen(false)}
-            className="px-6 py-3 hover:bg-blue-100 font-semibold text-center"
           >
             Що вказувати
           </a>
           <a
             href="#for-whom"
+            className="w-full bg-black text-white py-4 text-center text-lg font-semibold rounded-lg"
             onClick={() => setIsOpen(false)}
-            className="px-6 py-3 hover:bg-blue-100 font-semibold text-center"
           >
             Для кого
           </a>
         </div>
-      )}
+      </div>
 
       {/* Hero Content */}
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -109,12 +107,11 @@ export default function HeroSection() {
             Допомагаємо українським фермерам оцінити втрати від війни і подати
             юридичні вимоги на відшкодування
           </p>
-          <button 
-            onClick={scrollToForm}
-            className="mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-lg shadow-md"
-          >
-            Заповнити форму
-          </button>
+          <Link href="/form">
+            <button className="mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-lg shadow-md">
+              Заповнити форму
+            </button>
+          </Link>
         </div>
 
         <div className="hidden md:flex justify-center">
