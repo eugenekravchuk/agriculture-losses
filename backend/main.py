@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.middleware import BaseHTTPMiddleware
 from pydantic import BaseModel
 from typing import List
 import pandas as pd
@@ -11,16 +13,28 @@ from fpdf import FPDF
 import os
 import uvicorn
 
+class CustomHeaderMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        return response
+
 app = FastAPI(title="Agricultural Losses API")
 
+# Update CORS middleware with all possible origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://agriculture-losses-1llp.onrender.com"],
+    allow_origins=["*"],  # Allow all origins temporarily for debugging
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
     max_age=3600
 )
+
+app.add_middleware(CustomHeaderMiddleware)
 
 class TimeSeriesData(BaseModel):
     dates: List[str]
@@ -59,7 +73,6 @@ class PredictionData(BaseModel):
     forecast_values: List[float]
     dcf_values: List[float]
     total_npv: float
-    chart: str
 
 class GeneratePdfRequest(BaseModel):
     technique: List[TechniqueItem]
@@ -87,20 +100,6 @@ def calculate_dcf(dates, values, discount_rate):
         dcf_values.append(value / (1 + discount_rate) ** t)
     return dcf_values
 
-def generate_chart(raw_dates, raw_values, pred_dates, pred_values):
-    plt.figure(figsize=(12, 6))
-    plt.plot(raw_dates, raw_values, label='Historical Data', color='blue')
-    plt.plot(pred_dates, pred_values, label='Forecast', color='red')
-    plt.grid(True)
-    plt.legend()
-    plt.title('Trade Value Forecast')
-    plt.xlabel('Year')
-    plt.ylabel('Value')
-    buffer = io.BytesIO()
-    plt.savefig(buffer, format='png')
-    plt.close()
-    return base64.b64encode(buffer.getvalue()).decode()
-
 @app.get("/")
 async def root():
     return {"message": "Welcome to Agricultural Losses API"}
@@ -114,16 +113,36 @@ async def predict(data: TimeSeriesData):
     try:
         raw_dates, raw_values, pred_dates, pred_values = predict_timeseries(data.dates, data.values)
         dcf_values = calculate_dcf(pred_dates, pred_values, data.discount_rate)
-        chart = generate_chart(raw_dates, raw_values, pred_dates, pred_values)
-        return PredictionResponse(
+        
+        response = PredictionResponse(
             forecast_dates=[d.strftime("%Y-%m-%d") for d in pred_dates],
             forecast_values=pred_values.tolist(),
             dcf_values=dcf_values,
             total_npv=sum(dcf_values),
-            chart=chart
+        )
+        
+        return JSONResponse(
+            content=response.dict(),
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type",
+            }
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+# Add OPTIONS endpoint for CORS preflight requests
+@app.options("/predict")
+async def predict_options():
+    return JSONResponse(
+        content={"message": "OK"},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type",
+        }
+    )
 
 @app.post("/generate-pdf")
 async def generate_pdf(data: GeneratePdfRequest):
