@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function FormIntroSection() {
   return (
     <section
-      className="min-h-screen flex items-center justify-center px-6"
+      className="flex items-center justify-center px-6 py-[100px]"
       style={{
         backgroundImage: "linear-gradient(to right, white 40%, #3b82f6 100%)",
         backgroundSize: "cover",

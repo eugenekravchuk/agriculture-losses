@@ -16,12 +16,12 @@ export default function Home() {
 
   return (
     <main>
-      <FarmLossForm chartData={dcfData} />
+      {/* <FarmLossForm chartData={dcfData} />
       <DcfPage data={dcfData} onFormOpen={() => setShowDcfForm(true)} />
       {showDcfForm && (
         <DcfForm onSave={handleDcfSave} onClose={() => setShowDcfForm(false)} />
-      )}
-      {/* <MainPage /> */}
+      )} */}
+      <MainPage />
     </main>
   );
 }
