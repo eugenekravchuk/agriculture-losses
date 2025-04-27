@@ -22,20 +22,11 @@ class CustomHeaderMiddleware(BaseHTTPMiddleware):
         response.headers["Access-Control-Allow-Headers"] = "Content-Type"
         return response
 
-class CustomHeaderMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        response = await call_next(request)
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-        return response
-
 app = FastAPI(title="Agricultural Losses API")
 
-# Update CORS middleware with all possible origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins temporarily for debugging
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
