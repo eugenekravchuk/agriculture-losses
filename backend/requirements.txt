@@ -1,8 +1,8 @@
-flask
-flask-cors
-pandas
+fastapi
+uvicorn
+pydantic
 numpy
+pandas
 matplotlib
 statsmodels
 fpdf
-gunicorn
