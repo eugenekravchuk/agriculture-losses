@@ -1,3 +1,4 @@
+import ForWhomSection from "@/components/ForWhomSection";
 import HeroSection from "@/components/HeroSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import ImportanceSection from "@/components/ImportanceSection";
@@ -11,6 +12,7 @@ export default function Main() {
         <ImportanceSection />
         <HowItWorksSection />
         <WhatToEnterSection />
+        <ForWhomSection />
       </div>
     </div>
   );
