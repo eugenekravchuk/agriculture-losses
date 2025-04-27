@@ -1,14 +1,20 @@
-'use client';
+"use client";
 
 import React, { useState } from "react";
 
-interface TableSectionProps {
+interface TableSectionProps<T> {
   title: string;
   columns: string[];
+  items: T[];
+  setItems: React.Dispatch<React.SetStateAction<T[]>>;
 }
 
-export default function TableSection({ title, columns }: TableSectionProps) {
-  const [rows, setRows] = useState<string[][]>([]);
+export default function TableSection<T extends object>({
+  title,
+  columns,
+  items,
+  setItems,
+}: TableSectionProps<T>) {
   const [newRow, setNewRow] = useState<string[]>(columns.map(() => ""));
   const [errors, setErrors] = useState("");
 
@@ -28,10 +34,10 @@ export default function TableSection({ title, columns }: TableSectionProps) {
       }
 
       const isNumericColumn =
-        colName.includes('кількість') ||
-        colName.includes('площа') ||
-        colName.includes('ціна') ||
-        colName.includes('вартість');
+        colName.includes("кількість") ||
+        colName.includes("площа") ||
+        colName.includes("ціна") ||
+        colName.includes("вартість");
 
       if (isNumericColumn && isNaN(Number(value))) {
         return `Поле "${columns[i]}" повинно бути числом.`;
@@ -47,9 +53,37 @@ export default function TableSection({ title, columns }: TableSectionProps) {
       return;
     }
 
-    setRows([...rows, newRow]);
+    const mappedRow: any = {};
+
+    columns.forEach((col, idx) => {
+      const colName = col.toLowerCase();
+      const value = newRow[idx].trim();
+
+      // intelligently parse numbers if column looks numeric
+      const isNumericColumn =
+        colName.includes("кількість") ||
+        colName.includes("площа") ||
+        colName.includes("ціна") ||
+        colName.includes("вартість");
+
+      mappedRow[getMappedField(colName)] = isNumericColumn
+        ? Number(value)
+        : value;
+    });
+
+    setItems((prev) => [...prev, mappedRow]);
     setNewRow(columns.map(() => ""));
     setErrors("");
+  };
+
+  const getMappedField = (colName: string) => {
+    if (colName.includes("кількість")) return "quantity";
+    if (colName.includes("площа")) return "area_m2";
+    if (colName.includes("вартість") || colName.includes("вартість об'єкта"))
+      return "price";
+    if (colName.includes("ціна за голову")) return "price_per_unit";
+    if (colName.includes("ціна за відновлення")) return "repair_price_per_m2";
+    return "name";
   };
 
   return (
@@ -57,23 +91,34 @@ export default function TableSection({ title, columns }: TableSectionProps) {
       <h2 className="text-2xl font-bold text-gray-700">{title}</h2>
 
       <div className="bg-gray-50 rounded-xl shadow-sm p-4">
-        <div className={`overflow-x-auto ${rows.length > 5 ? 'max-h-80 overflow-y-auto' : ''}`}>
+        <div
+          className={`overflow-x-auto ${
+            items.length > 5 ? "max-h-80 overflow-y-auto" : ""
+          }`}
+        >
           <table className="w-full text-left table-auto">
             <thead className="sticky top-0 bg-gray-100">
               <tr>
                 {columns.map((col, idx) => (
-                  <th key={idx} className="px-4 py-2 text-gray-600 font-semibold">{col}</th>
+                  <th
+                    key={idx}
+                    className="px-4 py-2 text-gray-600 font-semibold"
+                  >
+                    {col}
+                  </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {rows.map((row, rowIndex) => (
+              {items.map((row, rowIndex) => (
                 <tr key={rowIndex} className="border-t">
-                  {row.map((cell, colIndex) => (
+                  {columns.map((col, colIndex) => (
                     <td key={colIndex} className="px-4 py-2">
                       <input
                         type="text"
-                        value={cell}
+                        value={
+                          (row as any)[getMappedField(col.toLowerCase())] ?? ""
+                        }
                         disabled
                         className="w-full bg-transparent text-gray-800"
                         readOnly
@@ -82,13 +127,16 @@ export default function TableSection({ title, columns }: TableSectionProps) {
                   ))}
                 </tr>
               ))}
+              {/* New Row */}
               <tr className="border-t">
                 {newRow.map((cell, colIndex) => (
                   <td key={colIndex} className="px-4 py-2">
                     <input
                       type="text"
                       value={cell}
-                      onChange={(e) => handleInputChange(colIndex, e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange(colIndex, e.target.value)
+                      }
                       className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
                     />
                   </td>

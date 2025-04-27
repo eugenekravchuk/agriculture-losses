@@ -24,6 +24,30 @@ ChartJS.register(
   Legend
 );
 
+interface TechniqueItem {
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+interface AnimalItem {
+  name: string;
+  quantity: number;
+  price_per_unit: number;
+}
+
+interface TerritoryItem {
+  name: string;
+  area_m2: number;
+  repair_price_per_m2: number;
+}
+
+interface BuildingItem {
+  name: string;
+  area_m2: number;
+  price: number;
+}
+
 interface PredictionData {
   dates: string[];
   values: number[];
@@ -38,6 +62,11 @@ export default function LossForm({
 }: {
   chartData: PredictionData | null;
 }) {
+  const [technique, setTechnique] = useState<TechniqueItem[]>([]);
+  const [animals, setAnimals] = useState<AnimalItem[]>([]);
+  const [territories, setTerritories] = useState<TerritoryItem[]>([]);
+  const [buildings, setBuildings] = useState<BuildingItem[]>([]);
+
   const [pdfGenerated, setPdfGenerated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -85,59 +114,68 @@ export default function LossForm({
     try {
       setIsLoading(true);
       setPdfGenerated(false);
-  
-      if (!chartData) {
-        throw new Error("Немає даних для генерації PDF");
-      }
-  
-      const payload = {
-        technique: [],
-        animals: [],
-        territories: [],
-        buildings: [],
-        prediction: {
-          forecast_dates: chartData.forecast_dates,
-          forecast_values: chartData.forecast_values,
-          dcf_values: chartData.dcf_values,
-          total_npv: chartData.total_npv,
-          chart: "",
-        },
-      };
-  
-      const response = await fetch("https://agriculture-losses-1llp.onrender.com/generate-pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-  
+
+      console.log(technique);
+      console.log(animals);
+      console.log(territories);
+      console.log(buildings);
+
+      const response = await fetch(
+        "https://agriculture-losses-1llp.onrender.com/generate-pdf",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            technique: technique,
+            animals: animals,
+            territories: territories,
+            buildings: buildings,
+            prediction: chartData
+              ? {
+                  forecast_dates: chartData.forecast_dates,
+                  forecast_values: chartData.forecast_values,
+                  dcf_values: chartData.dcf_values,
+                  total_npv: chartData.total_npv,
+                  chart: "base64encodedchart", // TODO: replace if needed
+                }
+              : {
+                  forecast_dates: [],
+                  forecast_values: [],
+                  dcf_values: [],
+                  total_npv: 0,
+                  chart: "",
+                },
+          }),
+        }
+      );
+
       if (!response.ok) {
         throw new Error("Failed to generate PDF");
       }
-  
+
       const result = await response.json();
       const base64PDF = result.pdf_base64;
-  
+
       const pdfBlob = new Blob(
         [Uint8Array.from(atob(base64PDF), (c) => c.charCodeAt(0))],
         { type: "application/pdf" }
       );
-  
+
       const pdfBlobUrl = URL.createObjectURL(pdfBlob);
       setPdfUrl(pdfBlobUrl);
-  
+
+      // Preview
       const previewUrl = `data:application/pdf;base64,${base64PDF}`;
       setPdfPreview(previewUrl);
-  
+
       setIsLoading(false);
       setPdfGenerated(true);
-  
     } catch (error) {
       console.error("Помилка при генерації PDF:", error);
       setIsLoading(false);
       alert("Не вдалося створити PDF документ");
     }
   };
-  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-pink-100 to-purple-200 py-12 px-6 flex flex-col items-center">
@@ -153,18 +191,26 @@ export default function LossForm({
           <TableSection
             title="Техніка"
             columns={["Назва/тип", "Кількість", "Вартість"]}
+            items={technique}
+            setItems={setTechnique}
           />
           <TableSection
             title="Тварини"
             columns={["Назва/тип", "Кількість", "Ціна за голову"]}
+            items={animals}
+            setItems={setAnimals}
           />
           <TableSection
             title="Територія"
             columns={["Назва/тип", "Площа (м²)", "Ціна за відновлення м²"]}
+            items={territories}
+            setItems={setTerritories}
           />
           <TableSection
             title="Будівлі і сховища"
             columns={["Назва/тип", "Площа/об'єм (м²)", "Вартість об'єкта"]}
+            items={buildings}
+            setItems={setBuildings}
           />
         </div>
 
