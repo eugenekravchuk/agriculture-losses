@@ -30,7 +30,6 @@ class PredictionResponse(BaseModel):
     forecast_values: List[float]
     dcf_values: List[float]
     total_npv: float
-    chart: str
 
 class TechniqueItem(BaseModel):
     name: str
@@ -72,11 +71,9 @@ def generate_pdf(data: GeneratePdfRequest):
         pdf = PDF(orientation='P', unit='mm', format='A4')
         pdf.add_page()
 
-        # Підключення українського шрифту
         pdf.add_font('DejaVu', '', './fonts/DejaVuSans.ttf', uni=True)
         pdf.set_font('DejaVu', '', 14)
 
-        # Титулка
         pdf.set_font('DejaVu', '', 18)
         pdf.cell(0, 10, "АКТ", ln=True, align="C")
         pdf.cell(0, 10, "Фіксації збитків аграрного господарства", ln=True, align="C")
@@ -92,7 +89,6 @@ def generate_pdf(data: GeneratePdfRequest):
         pdf.ln(10)
         pdf.cell(0, 10, "Слава Україні!", ln=True, align="C")
 
-        # Функція створення таблиць
         def add_table(title, items, headers, calc_func):
             if not items:
                 return 0
@@ -103,7 +99,7 @@ def generate_pdf(data: GeneratePdfRequest):
             pdf.ln(5)
 
             pdf.set_font('DejaVu', '', 10)
-            col_width = 48  # Розмір кожної колонки
+            col_width = 48
             for header in headers:
                 pdf.cell(col_width, 8, header, border=1, align='C')
             pdf.ln()
@@ -121,7 +117,6 @@ def generate_pdf(data: GeneratePdfRequest):
             pdf.cell(0, 10, f"Проміжна сума: {round(total, 2)} грн", ln=True)
             return total
 
-        # Заповнюємо всі категорії
         grand_total = 0
         grand_total += add_table("I. Техніка", data.technique, ["Назва", "К-сть", "Ціна за шт.", "Заг. сума"],
             lambda item: [item.name, item.quantity, item.price, round(item.quantity * item.price, 2)])
@@ -132,7 +127,6 @@ def generate_pdf(data: GeneratePdfRequest):
         grand_total += add_table("IV. Будівлі і Сховища", data.buildings, ["Назва", "Площа/Об'єм", "Вартість"],
             lambda item: [item.name, item.area_m2, item.price])
 
-        # Фінальна сторінка
         pdf.add_page()
         pdf.set_font('DejaVu', '', 18)
         pdf.cell(0, 10, f"СУМАРНІ ЗБИТКИ: {round(grand_total, 2)} грн", ln=True, align="C")
@@ -140,7 +134,6 @@ def generate_pdf(data: GeneratePdfRequest):
         pdf.set_font('DejaVu', '', 14)
         pdf.cell(0, 10, "Підпис заявника: ______________________", ln=True)
 
-        # Збереження PDF в пам'ять
         pdf_bytes = pdf.output(dest='S').encode('latin1')
         encoded = base64.b64encode(pdf_bytes).decode()
 
@@ -159,13 +152,11 @@ def predict_timeseries(dates, values):
     }).set_index('Date')
     
     df = df.asfreq('YS')
-    
+
     train_end = pd.Timestamp('2021-01-01')
     train_data = df.loc[:train_end, 'Value']
-    
     model = ARIMA(train_data, order=(1,1,1))
     model_fit = model.fit()
-    
     forecast_steps = 3
     forecast = model_fit.forecast(steps=forecast_steps)
     forecast.index = pd.date_range(start=train_end + pd.DateOffset(years=1), periods=forecast_steps, freq='YS')
@@ -184,47 +175,28 @@ def calculate_dcf(dates, values, discount_rate):
     
     return dcf_values
 
-def generate_chart(raw_dates, raw_values, pred_dates, pred_values):
-    plt.figure(figsize=(12,6))
-    plt.plot(raw_dates, raw_values, label='Historical Data', color='blue')
-    plt.plot(pred_dates, pred_values, label='Forecast', color='red')
-    
-    plt.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
-    plt.gca().set_axisbelow(True)
-    
-    plt.legend()
-    plt.title('Trade Value Forecast')
-    plt.xlabel('Year')
-    plt.ylabel('Trade Value')
-    
-    buffer = io.BytesIO()
-    plt.savefig(buffer, format='png')
-    plt.close()
-    
-    return base64.b64encode(buffer.getvalue()).decode()
-
 
 @app.api_route("/", methods=["GET", "HEAD"])
 async def read_root(request: Request):
     return {"message": "Hello, world!"}
 
+
 @app.api_route("/health", methods=["GET", "HEAD"])
 async def health(request: Request):
     return {"status": "ok"}
+
 
 @app.post("/predict")
 async def predict(data: TimeSeriesData):
     try:
         raw_dates, raw_values, pred_dates, pred_values = predict_timeseries(data.dates, data.values)
         dcf_values = calculate_dcf(pred_dates, pred_values, data.discount_rate)
-        chart = generate_chart(raw_dates, raw_values, pred_dates, pred_values)
         
         return PredictionResponse(
-            forecast_dates=[d.strftime("%Y-%m-%d") for d in pred_dates],
+            forecast_dates=[d.strftime("%d.%m.%Y") for d in pred_dates],
             forecast_values=pred_values.tolist(),
             dcf_values=dcf_values,
             total_npv=sum(dcf_values),
-            chart=chart
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

@@ -15,7 +15,7 @@ export default function Home() {
 
   return (
     <main>
-      <FarmLossForm />
+      <FarmLossForm chartData={dcfData} />
       <DcfPage
         data={dcfData}
         onFormOpen={() => setShowDcfForm(true)}
