@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import FarmLossForm from "./farm-loss-form/page";
 import DcfForm from "./dcf-form/page";
 import DcfPage from "./dcf-page/page";
-import Main from "./main/page";
+import MainPage from "@/components/MainPage";
 
 export default function Home() {
   const [showDcfForm, setShowDcfForm] = useState(false);
@@ -16,18 +16,12 @@ export default function Home() {
 
   return (
     <main>
-      {/* <FarmLossForm chartData={dcfData} />
-      <DcfPage
-        data={dcfData}
-        onFormOpen={() => setShowDcfForm(true)}
-      />
+      <FarmLossForm chartData={dcfData} />
+      <DcfPage data={dcfData} onFormOpen={() => setShowDcfForm(true)} />
       {showDcfForm && (
-        <DcfForm
-          onSave={handleDcfSave}
-          onClose={() => setShowDcfForm(false)}
-        />
-      )} */}
-      <Main />
+        <DcfForm onSave={handleDcfSave} onClose={() => setShowDcfForm(false)} />
+      )}
+      {/* <MainPage /> */}
     </main>
   );
 }
