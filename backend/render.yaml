@@ -1,12 +1,10 @@
 services:
   - type: web
-    name: agriculture-losses-api
+    name: your-flask-app
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    buildCommand: ""
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
     autoDeploy: true
     envVars:
-      - key: PORT
-        value: 10000 # Render automatically assigns a port, but this ensures compatibility
       - key: PYTHON_VERSION
-        value: 3.11 # Remove ".0" (Render expects major.minor)
+        value: 3.11

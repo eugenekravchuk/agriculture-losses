@@ -1,12 +1,89 @@
-'use client';
+''use client';
 
 import React, { useState } from "react";
 import TableSection from "./TableSection";
+import { jsPDF } from "jspdf";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-export default function LossForm() {
+// ✅ Зареєструвати обов'язкові елементи для ChartJS
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+interface PredictionData {
+  dates: string[];
+  values: number[];
+  forecast_dates: string[];
+  forecast_values: number[];
+  dcf_values: number[];
+  total_npv: number;
+}
+
+interface LossFormProps {
+  chartData: PredictionData | null;
+}
+
+export default function LossForm({ chartData }: LossFormProps) {
   const [pdfGenerated, setPdfGenerated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: 'Прогноз грошових потоків',
+      },
+    },
+  };
+
+  const renderChart = () => {
+    if (!chartData) return null;
+
+    const data = {
+      labels: [...chartData.dates, ...chartData.forecast_dates],
+      datasets: [
+        {
+          label: 'Фактичні дані',
+          data: chartData.values,
+          borderColor: 'rgb(75, 192, 192)',
+          backgroundColor: 'rgba(75, 192, 192, 0.5)',
+        },
+        {
+          label: 'Прогнозовані дані',
+          data: Array(chartData.dates.length).fill(null).concat(chartData.forecast_values),
+          borderColor: 'rgb(255, 99, 132)',
+          backgroundColor: 'rgba(255, 99, 132, 0.5)',
+        },
+      ],
+    };
+
+    return (
+      <div className="my-8">
+        <Line options={chartOptions} data={data} />
+      </div>
+    );
+  };
 
   const handleGeneratePDF = async () => {
     setIsLoading(true);
@@ -28,6 +105,8 @@ export default function LossForm() {
         <h1 className="text-4xl md:text-5xl font-bold text-center text-gray-800 mb-10 leading-snug">
           Форма фіксації втрат <span className="text-blue-600">фермерського господарства</span>
         </h1>
+
+        {chartData && renderChart()}
 
         <div className="space-y-10">
           <TableSection title="Техніка" columns={["Назва/тип", "Кількість", "Вартість"]} />
