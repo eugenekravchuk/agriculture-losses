@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import DcfForm from "@/app/dcf-form/page";
+import DcfForm from "@/components/DcfForm";
 
 export default function FormIntroSection() {
   const [showDcfForm, setShowDcfForm] = useState(false);
