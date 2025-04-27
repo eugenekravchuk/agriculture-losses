@@ -20,6 +20,7 @@ app.add_middleware(
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
+    
 )
 
 
@@ -76,15 +77,15 @@ def generate_pdf(data: GeneratePdfRequest):
         def header(self):
             if self.page_no() == 1:
                 return
-            self.set_font('DejaVu', '', 8)
+            self.set_font('Arial', '', 8)
             self.cell(0, 10, f'Сторінка {self.page_no()}', align='C')
 
     try:
         pdf = PDF()
         pdf.add_page()
 
-        pdf.add_font('DejaVu', '', './fonts/DejaVuSans.ttf', uni=True)
-        pdf.set_font('DejaVu', '', 18)
+        pdf.add_font('Arial', '', './fonts/ArialSans.ttf', uni=True)
+        pdf.set_font('Arial', '', 18)
 
         # Титулка
         pdf.cell(0, 10, "АКТ", ln=True, align="C")
@@ -92,7 +93,7 @@ def generate_pdf(data: GeneratePdfRequest):
         pdf.cell(0, 10, "Внаслідок збройної агресії російської федерації проти України", ln=True, align="C")
         pdf.ln(20)
 
-        pdf.set_font('DejaVu', '', 12)
+        pdf.set_font('Arial', '', 12)
         pdf.cell(0, 10, "ПІБ заявника: ____________________________", ln=True)
         pdf.cell(0, 10, "Дата складання: __________________________", ln=True)
         pdf.cell(0, 10, "Місце складання: _________________________", ln=True)
@@ -107,10 +108,10 @@ def generate_pdf(data: GeneratePdfRequest):
             if not items:
                 return 0
             pdf.add_page()
-            pdf.set_font('DejaVu', '', 14)
+            pdf.set_font('Arial', '', 14)
             pdf.cell(0, 10, title, ln=True)
             pdf.ln(5)
-            pdf.set_font('DejaVu', '', 10)
+            pdf.set_font('Arial', '', 10)
             col_width = pdf.w / len(headers) - 10
             for header in headers:
                 pdf.cell(col_width, 8, header, border=1, align='C')
@@ -123,7 +124,7 @@ def generate_pdf(data: GeneratePdfRequest):
                 pdf.ln()
                 total += row[-1]
             pdf.ln(5)
-            pdf.set_font('DejaVu', '', 12)
+            pdf.set_font('Arial', '', 12)
             pdf.cell(0, 10, f"Проміжна сума: {round(total, 2)} грн", ln=True)
             return total
 
@@ -151,22 +152,22 @@ def generate_pdf(data: GeneratePdfRequest):
 
         # Прогнозовані дані
         pdf.add_page()
-        pdf.set_font('DejaVu', '', 16)
+        pdf.set_font('Arial', '', 16)
         pdf.cell(0, 10, "Прогнозовані дані", ln=True, align="C")
         pdf.ln(10)
-        pdf.set_font('DejaVu', '', 10)
+        pdf.set_font('Arial', '', 10)
         for date, value, dcf in zip(data.prediction.forecast_dates, data.prediction.forecast_values, data.prediction.dcf_values):
             pdf.cell(0, 8, f"{date}: прогнозована вартість = {round(value,2)} грн, дисконтована вартість = {round(dcf,2)} грн", ln=True)
         pdf.ln(10)
-        pdf.set_font('DejaVu', '', 12)
+        pdf.set_font('Arial', '', 12)
         pdf.cell(0, 10, f"Загальна дисконтована вартість (NPV): {round(data.prediction.total_npv, 2)} грн", ln=True)
 
         # Підпис
         pdf.add_page()
-        pdf.set_font('DejaVu', '', 18)
+        pdf.set_font('Arial', '', 18)
         pdf.cell(0, 10, f"СУМАРНІ ЗБИТКИ: {round(grand_total, 2)} грн", ln=True, align="C")
         pdf.ln(20)
-        pdf.set_font('DejaVu', '', 14)
+        pdf.set_font('Arial', '', 14)
         pdf.cell(0, 10, "Підпис заявника: ______________________", ln=True)
 
         pdf_bytes = pdf.output(dest='S').encode('latin1')
