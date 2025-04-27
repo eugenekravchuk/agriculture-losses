@@ -13,6 +13,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { useSearchParams } from 'next/navigation';
 
 ChartJS.register(
   CategoryScale,
@@ -57,11 +58,23 @@ interface PredictionData {
   total_npv: number;
 }
 
-export default function LossForm({
-  chartData,
-}: {
-  chartData: PredictionData | null;
-}) {
+export default function LossForm() {
+  const searchParams = useSearchParams();
+  const [chartData, setChartData] = useState<PredictionData | null>(null);
+  
+  useEffect(() => {
+    const data = searchParams.get('data');
+    if (data) {
+      try {
+        const decodedData = JSON.parse(decodeURIComponent(data)) as PredictionData;
+        console.log('Received data:', decodedData);
+        setChartData(decodedData);
+      } catch (error) {
+        console.error('Error parsing data:', error);
+      }
+    }
+  }, [searchParams]);
+
   const [technique, setTechnique] = useState<TechniqueItem[]>([]);
   const [animals, setAnimals] = useState<AnimalItem[]>([]);
   const [territories, setTerritories] = useState<TerritoryItem[]>([]);
@@ -72,40 +85,122 @@ export default function LossForm({
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [pdfPreview, setPdfPreview] = useState<string | null>(null);
 
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: { position: "top" as const },
-      title: { display: true, text: "Прогноз грошових потоків" },
-    },
-  };
-
   const renderChart = () => {
-    if (!chartData) return null;
+    if (!chartData || !chartData.dates || !chartData.forecast_dates) {
+      console.log('Missing required chart data:', chartData);
+      return null;
+    }
+
+    const actualData = chartData.dates.map((date, index) => ({
+      year: parseInt(date.split('.')[2]),
+      value: parseFloat(chartData.values[index].toString())
+    })).sort((a, b) => a.year - b.year);
+
+    const lastActualYear = actualData[actualData.length - 1].year;
+
+    const forecastData = chartData.forecast_values.map((value, index) => ({
+      year: lastActualYear + index + 1,
+      value: parseFloat(value.toString())
+    }));
+
+    const lastActualPoint = actualData[actualData.length - 1];
+
+    const sortedLabels = [
+      ...actualData.map(d => d.year.toString()),
+      ...forecastData.map(d => d.year.toString())
+    ];
+
+    console.log('Actual Data:', actualData);
+    console.log('Forecast Data:', forecastData);
 
     const data = {
-      labels: [...chartData.dates, ...chartData.forecast_dates],
+      labels: sortedLabels,
       datasets: [
         {
           label: "Фактичні дані",
-          data: chartData.values,
-          borderColor: "rgb(75, 192, 192)",
-          backgroundColor: "rgba(75, 192, 192, 0.5)",
+          data: actualData.map(d => d.value),
+          borderColor: "#0066cc",
+          backgroundColor: "rgba(0, 102, 204, 0.1)",
+          borderWidth: 2,
+          pointRadius: 3,
+          tension: 0.4
         },
         {
           label: "Прогнозовані дані",
-          data: Array(chartData.dates.length)
-            .fill(null)
-            .concat(chartData.forecast_values),
-          borderColor: "rgb(255, 99, 132)",
-          backgroundColor: "rgba(255, 99, 132, 0.5)",
+          data: Array(actualData.length - 1).fill(null).concat([
+            lastActualPoint.value,
+            ...forecastData.map(d => d.value)
+          ]),
+          borderColor: "#ff3333",
+          backgroundColor: "rgba(255, 51, 51, 0.1)",
+          borderWidth: 2,
+          pointRadius: 3,
+          tension: 0.4
+        }
+      ]
+    };
+
+    const chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false, // Allow custom height
+      plugins: {
+        legend: {
+          position: 'top' as const,
+          labels: {
+            font: {
+              size: 14
+            }
+          }
         },
-      ],
+        title: {
+          display: true,
+          text: 'Прогноз грошових потоків',
+          font: {
+            size: 16,
+            weight: 'bold'
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            display: true,
+            drawBorder: true,
+            drawOnChartArea: true,
+            drawTicks: true,
+          },
+          ticks: {
+            font: {
+              size: 12
+            },
+            maxRotation: 0, // Prevent label rotation
+            autoSkip: false // Show all labels
+          },
+          afterFit: (scale: any) => {
+            scale.width = scale.maxWidth * (sortedLabels.length / 5); // Adjust width based on number of years
+          }
+        },
+        y: {
+          grid: {
+            display: true,
+            drawBorder: true,
+            drawOnChartArea: true,
+            drawTicks: true,
+          },
+          ticks: {
+            font: {
+              size: 12
+            }
+          }
+        }
+      }
     };
 
     return (
-      <div className="my-8">
-        <Line options={chartOptions} data={data} />
+      <div className="mb-8 p-6 bg-white rounded-lg shadow-lg">
+        <div style={{ height: '400px', width: `${Math.max(100, sortedLabels.length * 10)}%` }}>
+          <Line options={chartOptions} data={data} />
+        </div>
       </div>
     );
   };
@@ -114,6 +209,9 @@ export default function LossForm({
     try {
       setIsLoading(true);
       setPdfGenerated(false);
+
+      const chartCanvas = document.querySelector('canvas');
+      const chartImage = chartCanvas?.toDataURL('image/png');
 
       const response = await fetch(
         "https://agriculture-losses-1llp.onrender.com/generate-pdf",
@@ -131,7 +229,7 @@ export default function LossForm({
                   forecast_values: chartData.forecast_values,
                   dcf_values: chartData.dcf_values,
                   total_npv: chartData.total_npv,
-                  chart: "base64encodedchart", // TODO: replace if needed
+                  chart: chartImage
                 }
               : {
                   forecast_dates: [],
@@ -159,7 +257,6 @@ export default function LossForm({
       const pdfBlobUrl = URL.createObjectURL(pdfBlob);
       setPdfUrl(pdfBlobUrl);
 
-      // Preview
       const previewUrl = `data:application/pdf;base64,${base64PDF}`;
       setPdfPreview(previewUrl);
 
@@ -173,11 +270,10 @@ export default function LossForm({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-pink-100 to-purple-200 py-12 px-6 flex flex-col items-center">
-      <div className="max-w-4xl w-full bg-white shadow-lg rounded-3xl p-10">
-        <h1 className="text-4xl md:text-5xl font-bold text-center text-gray-800 mb-10 leading-snug">
-          Форма фіксації втрат{" "}
-          <span className="text-blue-600">фермерського господарства</span>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-pink-100 to-purple-200 py-12 px-6">
+      <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-lg p-8">
+        <h1 className="text-4xl font-bold text-center mb-8">
+          Форма фіксації втрат <span className="text-blue-600">фермерського господарства</span>
         </h1>
 
         {chartData && renderChart()}

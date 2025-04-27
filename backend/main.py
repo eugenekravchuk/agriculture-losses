@@ -153,6 +153,7 @@ async def predict(data: TimeSeriesData):
             dcf_values=dcf_values,
             total_npv=sum(dcf_values)
         )
+        
     except Exception as e:
         raise HTTPException(
             status_code=400,
